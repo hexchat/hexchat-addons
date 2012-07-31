@@ -1,0 +1,318 @@
+textualdynambot
+version 009.01
+by LifeIsPain
+zlib license, see COPYING
+based on thermodynambot by b0at
+
+
+See INSTALL for installation instructions.
+
+See the comments in textualdynambot.conf for full example entries.
+
+See http://orvp.net/xchat/textualdynambot/
+for the latest version.
+
+
+What is it?:
+	textualdynambot is a reaction script for XChat. It allows XChat to
+	perform any command based on what is said in either in the channel
+	or privately, depending on who said the line, where the line was
+	said, and what the speaker's channel status is. The configuration of
+	this script requires no existing programming knowledge (although it
+	can be helpful if you wish to use regular expressions). All that is
+	required is a little bit of patience, XChat 2.6.0 or later, a
+	working install of Perl, and the XChat Perl plugin.
+
+	Simply define the parameters in the configuration file, load the
+	script, and you will be on your way. This script can be used for a
+	variety of purposes, such as channel management, additional logging,
+	notification to an external device (as set by the other device), or
+	simply for the fun of it! How you use it is up to you.
+
+
+User commands:
+	TDB or TEXTUALDYNAMBOT (no args)
+		reload config
+	TDB or TEXTUALDYNAMBOT <off|unload>
+		stop listening to incoming lines
+	TDBTEST <...>
+		test an entry with arbitrary data (see /help TDBTEST)
+	TDBECHO <...>
+		same as tdbtest, but echos out command rather than executing it
+		(see /help TDBECHO)
+
+
+Basic entry:
+	[method:pattern]
+	+in: locations
+	-in: locations (optional)
+	+from: users
+	-from: users (optional)
+	+mode: modes (optional)
+	-mode: modes (optional)
+	capnum: limit (optional)
+	captime: seconds (optional)
+	capshared: enabled (optional)
+	command: xchat command
+
+
+method
+	One of:
+
+	regex
+		A regular expression. see perlre, perlretut, perlrequick in
+		perldoc (or perldoc.com). Use (?i) to enable case insensitivity.
+		Use ^ at the beginning of the pattern to anchor it to the start
+		of the message, $ at the end to anchor to the end of the
+		message.
+
+		Captures (in parentheses) are saved and accessible with the
+		%1-%9 and %$ macros.
+
+		example: [regex:(?i)foo$]
+
+	text
+		Wildcard-filtered text (see wildcards, below). It matches
+		anywhere in the message.
+
+		example: [text:bar *]
+		example: [text:\*\*\*]
+
+	line
+		Wildcard-filtered text anchored to the beginning and end of the
+		message. It must match the entire line to trigger.
+
+		example: [line:!baz *]
+		example: [line:Can you hear me now\?]
+
+wildcards
+	One of * (zero or more characters) or ? (exactly one character). The
+	contents of the message matched by wildcards are captured and saved
+	in the %1-%9 and %$ macros.
+
+	Wildcards may be escapped by a \ (backslash) if the actual character
+	is desired for [line:\?] and [text:\*]
+
++in/-in (or +where/-where, if that makes more sense to you)
+	Require or exclude locations (wildcards allowed), which are comma-
+	separated lists. Any of the following may be combined.
+
+	channels (prefix with '/' to designate a regular expression)
+		example: +in: #foob??
+		example: +in: *
+		         -in: #butnotthischannel
+		example: +in: /(?i)-cha+n$
+
+	networks with channels (prefix with '/' for regular expressions)
+		example: +in: efnet:*, mynet:#mychan
+		example: +in: Moz*
+		         -in: Moz*:#quietchan
+
+	private messages
+		example: +in: private
+		example: +in: efnet:private
+
+	actions
+		example: +in: action
+		example: +in: #mychan:action
+		         -in: BadNet:#mychan:action
+
+	messages (assumed to be true unless action specified)
+		Normally, if 'action' is specified, the rule will no longer
+			apply to normal messages. By specifying 'message',
+			the rule may apply to both actions and messages
+		example: +in: action:message
+
+	private actions
+		If using 2.8.8 or newer:
+			example: +in: private:action
+			example: +in: MyNetwork:private:action
+		Otherwise (see "Action Note"):
+			example: +in: *:/([^#&!].*):action
+		To work in both old and new (adds some inefficency):
+			example: +in: *:/([^#&!].*):private:action
+
+	highlights (only applies to channel messages)
+		example: +in: #mychan:highlight:action
+		example: +in: highlight
+
+	nohighlight (applies to messages that aren't highlights)
+		example: +in: nohighlight
+		example: +in: #mychan
+		         -in: #mychan:nohighlight
+		    This effectively makes it a "highlight" event
+		example: [text:slap]
+		         +in: #mychan:nohighlight:action
+		         command: say %n slapped someone, and it wasn't me
+
+	Invalid options:
+		Causes the firsts one listed to be applied:
+			+in: #mychan,highlight,nohighlight
+		this is the same as doing:
+			+in: #mychan,highlight
+
+	Combining it all together:
+		Apply to all private and highlight messages that aren't actions:
+			example: +in: MyNetwork:private:highlight
+		Apply to everything said by someone else:
+			example: +in private:channel:action:message
+			example: +in *:*:private:action:message
+
+	This is optional: the implicit default is "+in: *".
+
++from/-from
+	Require or exclude users (wildcards allowed), comma-sep lists. You
+	may shorten just nicks to 'nick!' and just addresses to '@address'.
+	Any of the following may be combined.
+
+	example: +from: foo*!*bar@baz
+	example: +from: *
+	         -from: bob!, @*bob.com
+	example: +from: *!bill@*.bill.net
+
+	Optionally, you may use a regular expression. Prefix any mask in the
+	list with an forward slash ('/').
+
+	example: +from: *
+	         -from: /([^!]+)!~\1@.+
+
+	This is optional: the implicit default is "+from: *".
+
++mode/-mode
+	Require or exclude users with specific modes (no wildcards). Use
+	'none' to select users with no mode. Note that only the visible mode
+	will match (eg a user with +o and +v will only have a prefix with
+	the oper char, eg @). Arbitrary-length and charcter modes are
+	supported if the network and xchat support them.
+
+	example: -mode: none
+	example: +mode: @,%,+
+
+capnum
+	Set the number of times this entry may be used in a set length of
+	time (specified by captime). If more than the specified number of
+	matches occur in the time alloted, further matches will not be
+	replied to.
+
+	This setting is optional and defaults to '0', which is the same as
+	an unlimited number.
+
+	example: capnum: 5
+
+captime
+	The number of seconds to remember previous executions of this entry.
+	If more than <capnum> matches occur in <captime> seconds, further
+	matches will not be replied to until this condition is no longer
+	met.
+
+	This setting is optional and defaults to '60', which is one minute.
+	The value specified here is only considered if <capnum> is non 0.
+
+	example: capnum: 4
+	         captime: 30
+
+	example: capnum: 1
+	         captime: 10
+
+capshared
+	When using <capnum>, should the number be applied across multiple
+	channels or not. If true, all contexts will contribute to the count
+	against capnum. If false, each context will be limited only by
+	previous matches within that context.
+
+	As an example, consider the following events:
+		[line:!unique]
+		capnum: 3
+		capshared: 0
+		command: echo I am limited only in here
+
+		[line:!shared]
+		capnum: 3
+		capshared: 1
+		command: echo I am limited also by other channels
+
+	If a user in #chanA types !unique 3 times within a minute, a user
+	in #chanB could also call !unique. However if the user in #chanA
+	types !shared two times, and a user in #chanB types !shared two
+	times, only the first call within #chanB will be responded to, the
+	second will not until 60 seconds is up.
+
+	example: capshared: 1
+	example: capshared: on
+	example: capshared: off
+	example: capshared: 0
+
+command
+	An xchat command to execute. Any number of commands are allowed.
+	Especially handy for this is exec [-o], which could even be used to
+	modify tdb's own configuration file.
+
+	The command is executed in the context of the event. That means that
+	responses go in the right place.
+
+	Some macros of the form %. are expanded in commands:
+		%n	user's nick name
+		%u	user's user name (ident)
+		%a	user's address
+		%c	channel where event took place (or their nick if in private)
+		%o	user's mode in the channel (empty if private)
+		%w	network name (or server name)
+		%m	own nick name
+		%d	current local date
+		%y	current gmt date
+			(in '%Y/%m/%d' format from strftime)
+		%t	current local time 
+		%z	current gmt (zulu) time
+			(in '%H:%M:%S' format from strftime)
+		%s	full text
+		%1 to %9 
+			capture or wildcard match (or empty)
+		%$	last capture, if any (otherwise empty)
+
+		%%	single percent sign %
+
+     Color codes (%B, %C, %U, %V for reverse, %O for reset) are 
+		interpreted correctly. They must be upper case.
+
+     Unmatched macros are removed. eg, '%q' expands to '' --
+    	to output '%q' use '%%q'
+
+	 If you wish to escape non alphanumeric characters in the
+		macro's value, use '\%' instead of '\%'.
+		Eg. '\%s' will cause a line of:
+			This is the-last [straw]
+		To look like:
+			This\ is\ the\-last\ \[straw\]
+
+	 Use '\%%' to output '\%'.
+
+	If an entry may be triggered by a public (channel) or a private
+	event, then use 'msg %c' to respond rather than just 'say', which
+	would print the response to the channel even if it was supposed
+	to go to the other party privately.
+
+	example: command: say %n (actually %u@%a) triggered this event.
+	example: command: exec -o /path/to/program
+	example: command: exec -o perl -lwe 'some_great_one-liner();'
+	example: command: exec echo \[\%d\]\ \%s >> /tmp/\%n.txt
+
+
+Notes:
+
+Action Note:
+	Prior to XChat 2.8.8, actions sent only to you via PM did not
+	have their own text events, they shared the event used within
+	channels. Because of this, when an action is said to you,
+	TDB can only detect that it was an ACTION, not that it was
+	also PRIVATE. Where the message ends up being printed
+	determins what XChat reports the channel as. So if you have
+	the "Open a new tab when you receive a private message"
+	option disabled (which may have happned based on being PM
+	flooded), the PM may end up showing in a channel, and so the
+	regular expression will disregard this message. Additionally,
+	if you then have it message %c (which would normally be the
+	user for a PM), and you were looking at some other user's PM,
+	this second user will receive the reply.
+
+
+2010/06/05

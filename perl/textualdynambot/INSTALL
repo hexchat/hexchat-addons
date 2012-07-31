@@ -1,0 +1,31 @@
+textualdynambot
+Installation
+
+This script requires the Perl plugin for xchat v2.6.0+ to be installed 
+and loaded.
+
+Find your config directory.
+
+	*nix (fink, too?): ~/.xchat2/
+	winxp: C:\Documents and Settings\username\Application Data\X-Chat 2\
+	vista/w7: C:\Users\username\AppData\Roaming\X-Chat 2\
+	xchat-aqua: use the Plugins dir inside your xchat program dir
+
+Put all .pl (the script) and .conf (configuration) files in your 
+config directory.
+
+If upgrading from thermodynambot rename:
+  _thermodynambot.conf
+    to
+  textualdynambot.conf
+
+The script (.pl) requires NO modification to use it. Simply
+edit the configuration file (.conf).
+
+Unload/reload the Perl plugin (/reloadall or use the 'Windows->
+Plugins and Scripts...' utility).
+
+The script will print:
+textualdynambot vXYZ by LifeIsPain, based on thermodynambot by b0at (use...)
+
+Barring error messages, it is loaded and ready.

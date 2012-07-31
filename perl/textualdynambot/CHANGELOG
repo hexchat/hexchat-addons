@@ -1,0 +1,101 @@
+textualdynambot
+Features/Compatibility Change Log
+
+Each release (especially emergency releases with a 
+	hypenated version) offers bug fixes, cleaner code,
+	and improved functionality over the previous one.
+
+Please use the latest version.
+
+009.01 - 2010/06/05
+- Load configuration file as UTF-8
+- Silently ignore lines where the text isn't defined
+
+009 - 2010/05/26
+- Move rule throttling until after other conditions are met
+- Allow all macros to be prefixed with '\' to escape the value
+- Changed default character for what is considered a regex for
+   'from' address from '&' to '/', update your conf if you use
+   regular expressions for froms
+- Fixed problem where regex on 'from' wasn't actually working
+- Networks and Channels now may be prefixed with '/' to designate
+   the rest of the string as a regular expression
+- Redo 'action' and 'private' +in/-in options to be directly
+   associated with the channel and network. Some rules may need
+   to be modified. If you have '+in: *, action', this means all
+   messages and all actions said within channels.
+- Add 'highlight', 'nohighlight', and 'message' modifiers to
+   +in/-in rules, consistent with redone 'action' and 'private'.
+   'highlight' and 'nohighlight' are mutually exclusive, although
+   if neither is specified, defaults to both.
+- Support is in place for '*:action:private', however this will
+   only work in XChat when one of LifeIsPain's patches is applied
+   (submitted to XChat, hopefully will be in 2.8.8). Until then,
+   to catch actions in PM, use: +in: *:/[^#&!].+:action
+- Can stop listening for events with "/tdb off" "/tdb unload",
+   "/textualdynambot off" or "/textualdynambot unload". Use
+   "/tdb" or "/textualdynambot" to listen again.
+
+008 - 2010/05/19
+- Remove requirement for a space in +in: Network:#channel
+- Can now use \? if you want a question mark within [line:]
+   and [text:], and \* if you want to match an asterisk. Use
+   additional \s if you wish to escape the \
+- Fixed issue of context not always being correct after /who
+
+007 - 2010/05/15
+- Made as complete fork of thermodynambot
+- Suport for older versions of xchat removed
+- Added in per rule throttling based on time, times used, and
+   optional same session usage
+- Fixed issue of "uninitialized value $hook" when receiving
+   private messages
+- Modified method of obtaining hosts based on other open tabs
+- Slightly more efficient when loading the configuration file
+
+As thermodynambot
+006 - 2010/04/27 - LifeIsPain edits pre declared fork
+- Network:#channel combinations now correctly work in +in and -in
+   rather than just matching channel portion
+- +in: * and +from: * are only defaults if +in: or +from: is not
+   defined by another line, so isn't always enabled
+- If "private" or "network:private" is in the +in, now does not
+   get matched by channel messages
+- Better handling of /who, won't send a request if it is still
+   waiting for a previous request, uses fewer hooks, and doesn't
+   send a request if a reply will probably come in due to a join
+- Along with above, no longer get an error message when a
+   variable isn't available to split
+
+005.02
+- +from: * and +in: * are now the implicit defaults, so you can 
+   leave them out entirely in the config entries
+
+005.01
+- Changed how the "who" entry is composed for a user so possible 
+   undefined string warnings will be avoided when dealing with 
+   strange host masks.
+
+005
+- now searches through tabs to find a user on the same network
+	when user_info turns up nothing; 
+	then hooks /who as a last resort
+
+004 (through 004-01)
+- added %o macro
+- hooked /who when user_info turned up dry
+
+003 (through 003-03)
+- added %w macro
+- added optional wildcard networks for in (where)
+
+002
+- added user-command testing (TBDECHO and TDBTEST commands)
+- made +in/-in interchangeable with +where/-where to make
+	it more clear when glancing at the rules
+- now using 'none' to signify no mode
+
+001 (first release)
+- used '-' to signify no mode 
+	(the only incompatibility issue for later versions)
+
