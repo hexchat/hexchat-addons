@@ -65,32 +65,12 @@ std::wstring* GetCurrentSongsName(HWND hwndWinamp)
 
     GetWindowTextW(hwndWinamp,wtit,1024);
 	std::wstring *strTitle = new std::wstring(wtit);
+	if ((strTitle->find(L"**") < strTitle->length()-3)&&(strTitle->find(L"**")!=strTitle->npos)) {
+		strTitle->assign(strTitle->substr(strTitle->find(L" ", strTitle->find(L"**"))+1));
+	}
+    strTitle->assign(strTitle->substr(strTitle->find(L" ")+1)); // Deletes the . and the following white space
+    strTitle->erase(strTitle->find(L"- Winamp"));// Deletes the trailing "- winamp"		
 
-    if ((strTitle->find(L"- Winamp ***")) != strTitle->npos)
-    {
-        // The option "scroll song title in taskbar" is on
-     /*   title2 = (char*) malloc (titlesize*sizeof(char));
-
-        for (i=(pos+12)%length; i!=pos; i=(i+1)%length)
-            title2[j++] = title[i];
-
-        title2[j] = '\0';
-
-        p = title2;
-        while (p<title2+titlesize && *p != '.')
-            p++;
-        p += 2; // Deletes the . and the following white space
-
-        strcpy(title, p);
-        free(title2); */
-		strTitle->assign(L"Too BAD");
-    }
-    else
-    {
-        strTitle->assign(strTitle->substr(strTitle->find(L" "))); // Deletes the . and the following white space
-        strTitle->erase(strTitle->find(L"- Winamp"));// Deletes the trailing "- winamp"
-		
-    }
 	return strTitle; 
 }
 
@@ -248,7 +228,7 @@ extern "C" {
 
 		*plugin_name = "EasyWinampControl";
 		*plugin_desc = "Plugin for remotely controlling Winamp";
-		*plugin_version = "1.3.5";
+		*plugin_version = "1.3.6";
 
 		xchat_hook_command(ph, "wp", XCHAT_PRI_NORM, wp_cb,
 						   "Usage: wp [ n  |  b  |  p  |  s  |  q   ]\n"\

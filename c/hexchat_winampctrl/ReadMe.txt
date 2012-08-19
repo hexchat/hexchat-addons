@@ -4,6 +4,10 @@ Forked from <http://easywinampcontrol.mandragor.org/>, and then from <https://gi
 Licensed under the [GNU Lesser General Public License (LGPL)](http://www.gnu.org/licenses/lgpl.html)
 
 ###What's new###
+Version 1.3.6
+* Fixed support for scrolling titles in taskbar
+* Fixed additionnal space before song name
+
 Version 1.3.5
 * Fully compatible with x32 AND x64 XChat/Hexchat
 * Full Unicode support

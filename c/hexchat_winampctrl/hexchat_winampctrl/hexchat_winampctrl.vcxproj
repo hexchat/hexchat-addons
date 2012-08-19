@@ -142,6 +142,7 @@
     <ClCompile Include="hexchat_winampctrl.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="winamp.h" />
     <ClInclude Include="xchat-plugin.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

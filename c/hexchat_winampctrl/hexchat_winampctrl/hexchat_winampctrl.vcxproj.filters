@@ -29,5 +29,8 @@
     <ClInclude Include="xchat-plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="winamp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
