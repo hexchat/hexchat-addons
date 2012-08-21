@@ -101,6 +101,9 @@ static int wp_cb(char *word[], char *word_eol[], void *userdata)
             xchat_print(ph, "Could not get current song's samplerate... !?\n");
             return XCHAT_EAT_ALL;
         }
+		if (samplerate<8000) {
+			samplerate *= 1000;
+		}
         // Get bitrate
         if ((bitrate = SendMessage(hwndWinamp, WM_USER, (WPARAM)1, (LPARAM)IPC_GETINFO)) == 0)
         {
@@ -228,7 +231,7 @@ extern "C" {
 
 		*plugin_name = "EasyWinampControl";
 		*plugin_desc = "Plugin for remotely controlling Winamp";
-		*plugin_version = "1.3.6";
+		*plugin_version = "1.3.7";
 
 		xchat_hook_command(ph, "wp", XCHAT_PRI_NORM, wp_cb,
 						   "Usage: wp [ n  |  b  |  p  |  s  |  q   ]\n"\

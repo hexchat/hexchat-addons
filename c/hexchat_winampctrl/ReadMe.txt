@@ -1,9 +1,12 @@
-##EasyWinampControl 1.3.6##
+##EasyWinampControl 1.3.7##
 ***
 Forked from <http://easywinampcontrol.mandragor.org/>, and then from <https://github.com/KevinLi/EasyWinampControl>
 Licensed under the [GNU Lesser General Public License (LGPL)](http://www.gnu.org/licenses/lgpl.html)
 
 ###What's new###
+Version 1.3.7
+* Sample Rate is now always converted into Hz to standardize between Winamp (which reportz Khz) and foobar2000 with the Winamp plugin (which reports Hz) 
+
 Version 1.3.6
 * Fixed support for scrolling titles in taskbar
 * Fixed additionnal space before song name
@@ -34,7 +37,7 @@ Version 1.3
 ###Installation###
 * Copy the plugin to XChat's plugin directory (ex: C:\Program Files\XChat-WDK\plugins\).
 * Start XChat (or HexChat/XChat-WDK). If the plugin hasn't automatically loaded, load it at the menu in "**Window > Plugins and Scripts**"
-* Go to "**Settings > Advanced > User Commands...**", and add a command named **"dispcurrsong"**, which is what the plugin will display when **/wp** is used, and with a command such as "**me is now playing: &7 [%5/%6] %3kbps - %2Khz**".
+* Go to "**Settings > Advanced > User Commands...**", and add a command named **"dispcurrsong"**, which is what the plugin will display when **/wp** is used, and with a command such as "**me is now playing: &7 [%5/%6] %3kbps - %2Hz**".
 
 `
 %2    Sample rate  
@@ -66,11 +69,12 @@ Version 1.3
 
 ###Compilation###
 
-* Make sure to add the plugin.def file to linker command line options, as detailed in the HexChat C plugi documentation.
+* Make sure to add the plugin.def file to linker command line options, as detailed in the HexChat C plugin documentation.
 
 ###Known Bugs###
 
-* None
+* Unicode characters grabbed from foobar2000 with the Winamp Plugin display as '?'. This is an issue with unicode handling in the foobar2000 plugin. If anyone has the source to that, tell me.
 
 ###Testing###
 * Tested with HexChat 2.9.1 x64 and Winamp 5.63
+* Tested with HexChat 2.9.1 x64 and foobar2000 v1.1.14a with foo_winamp_spam Winamp API Emulator 0.90aFix
