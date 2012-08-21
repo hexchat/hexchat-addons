@@ -31,8 +31,8 @@ Version 1.3
 * Fancy */wp next*
 
 ###Download###
-* [Version 1.3.6 (32bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x32.dll)  
-* [Version 1.3.6 (64bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x64.dll)  
+* [Version 1.3.7 (32bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x32.dll)  
+* [Version 1.3.7 (64bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x64.dll)  
 
 ###Installation###
 * Copy the plugin to XChat's plugin directory (ex: C:\Program Files\XChat-WDK\plugins\).
