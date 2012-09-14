@@ -1,0 +1,4 @@
+# git ignore file
+hexchat_winampctrl.sdf
+hexchat_winampctrl.suo
+*.user
