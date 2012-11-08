@@ -1,4 +1,4 @@
-EasyWinampControl 1.3.7
+EasyWinampControl 1.3.8
 =======================
 
 Forked from <http://easywinampcontrol.mandragor.org/>, and then from <https://github.com/KevinLi/EasyWinampControl>
@@ -6,9 +6,13 @@ Licensed under the [GNU Lesser General Public License (LGPL)](http://www.gnu.org
 
 What's new
 ----------
+Version 1.3.8
+
+* Used new hexchat header, rebranded everything to work with it
+
 Version 1.3.7
 
-* Sample Rate is now always converted into Hz to standardize between Winamp (which reportz Khz) and foobar2000 with the Winamp plugin (which reports Hz) 
+* Sample Rate is now always converted into Hz to standardize between Winamp (which reports Khz) and foobar2000 with the Winamp plugin (which reports Hz) 
 
 Version 1.3.6
 
@@ -38,6 +42,10 @@ Version 1.3
 Download
 --------
 
+* [Version 1.3.8 (32bit)](https://github.com/downloads/hexchat/hexchat-addons/hexchat_winampctrl_x32.dll)  
+* [Version 1.3.8 (64bit)](https://github.com/downloads/hexchat/hexchat-addons/hexchat_winampctrl_x64.dll)  
+
+You can download the older version if you still use a version of Hexchat that uses xchat type plugins (if the new one doesn't work, try this one):
 * [Version 1.3.7 (32bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x32.dll)  
 * [Version 1.3.7 (64bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x64.dll)  
 
@@ -86,4 +94,4 @@ Known Bugs
 Testing
 -------
 * Tested with HexChat 2.9.1 x64 and Winamp 5.63
-* Tested with HexChat 2.9.1 x64 and foobar2000 v1.1.14a with foo_winamp_spam Winamp API Emulator 0.90aFix
+* Tested with HexChat 2.9.3 x64 and foobar2000 v1.1.16 with foo_winamp_spam Winamp API Emulator 0.96

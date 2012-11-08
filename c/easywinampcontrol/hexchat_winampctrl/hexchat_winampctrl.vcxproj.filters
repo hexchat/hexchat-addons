@@ -26,10 +26,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="xchat-plugin.h">
+    <ClInclude Include="winamp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="winamp.h">
+    <ClInclude Include="hexchat-plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
