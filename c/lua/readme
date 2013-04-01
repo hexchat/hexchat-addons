@@ -1,0 +1,5 @@
+1. Install build tools. i.e. yum groupinstall development-tools or apt-get install build-essential
+2. Install glib-devel and lua-devel (-dev in debians)
+3. make && make install
+4. Restart hexchat
+
