@@ -2,4 +2,4 @@
 2. Install glib-devel and lua-devel (-dev in debians)
 3. make && make install
 4. Restart hexchat
-
+5. Read online docs - http://ankh-morp.org/code/xchat-lua/
