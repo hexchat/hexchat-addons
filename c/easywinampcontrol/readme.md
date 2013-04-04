@@ -42,12 +42,12 @@ Version 1.3
 Download
 --------
 
-* [Version 1.3.8 (32bit)](https://github.com/downloads/hexchat/hexchat-addons/hexchat_winampctrl_x32.dll)  
-* [Version 1.3.8 (64bit)](https://github.com/downloads/hexchat/hexchat-addons/hexchat_winampctrl_x64.dll)  
+* [Version 1.3.8 (32bit)](http://dl.hexchat.org/addons/hexchat_winampctrl_x32.dll)  
+* [Version 1.3.8 (64bit)](http://dl.hexchat.org/addons/hexchat_winampctrl_x64.dll)  
 
 You can download the older version if you still use a version of Hexchat that uses xchat type plugins (if the new one doesn't work, try this one):
-* [Version 1.3.7 (32bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x32.dll)  
-* [Version 1.3.7 (64bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x64.dll)  
+* [Version 1.3.7 (32bit)](http://dl.hexchat.org/addons/winampctrl_x32.dll)  
+* [Version 1.3.7 (64bit)](http://dl.hexchat.org/addons/winampctrl_x64.dll)  
 
 Installation
 ------------
