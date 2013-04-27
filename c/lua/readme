@@ -3,3 +3,5 @@
 3. make && make install
 4. Restart hexchat
 5. Read online docs - http://ankh-morp.org/code/xchat-lua/
+
+If you get tons of errors during complition try replacing "lua5.1" with "lua" in the makefile.
