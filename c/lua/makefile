@@ -1,6 +1,5 @@
-
 CFLAGS += -O2 -Wall -fPIC -shared
-CFLAGS += $(shell pkg-config --libs --cflags lua)
+CFLAGS += $(shell pkg-config --libs --cflags lua5.1)
 CFLAGS += $(shell pkg-config --libs --cflags glib-2.0)
 OUTFILE := lua.so
 
