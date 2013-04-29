@@ -6,7 +6,7 @@ __module_author__ = 'TingPing'
 __module_version__ = '0'
 __module_description__ = 'Announces away in specified channels.'
 
-away_time = 0
+away_time = {}
 announce_list = []
 help_msg = 'announce add <channel>\n \
   					remove <channel>\n \
@@ -23,7 +23,7 @@ def save_list():
 
 def away_cb(word, word_eol, userdata):
 	global away_time
-	away_time = time.time()
+	away_time[hexchat.get_info('server')] = time.time()
 	reason = hexchat.get_info('away')
 	for channel in hexchat.get_list('channels'):
 		if channel.server == hexchat.get_info('server'):
@@ -36,7 +36,7 @@ def away_cb(word, word_eol, userdata):
 def back_cb(word, word_eol, userdata):
 	gone_time = None
 	if away_time:
-		gone_time = time.strftime('%H:%M:%S' , time.gmtime(time.time() - away_time))
+		gone_time = time.strftime('%H:%M:%S' , time.gmtime(time.time() - away_time.get(hexchat.get_info('server'))))
 	for channel in hexchat.get_list('channels'):
 		if channel.server == hexchat.get_info('server'):
 			if channel.channel in announce_list:
@@ -73,5 +73,5 @@ hexchat.hook_command('away', away_cb)
 hexchat.hook_command('back', back_cb)
 hexchat.hook_unload(unload_callback)
 load_list()
-hexchat.command('menu -t0 add "$TAB/Announce Away" "announce add %c" "announce remove %c')
+# hexchat.command('menu -t0 add "$TAB/Announce Away" "announce add" "announce remove')
 print(__module_name__ + ' version ' + __module_version__ + ' loaded.')
