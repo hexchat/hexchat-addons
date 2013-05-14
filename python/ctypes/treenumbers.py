@@ -134,7 +134,8 @@ class F:
         channels = map(lambda c: c.channel, xchat.get_list("channels"))
         if self.prev_channels != channels and self.timerhook is None:
             self.timerhook = xchat.hook_timer(250, self.enumerate_cb)
-        self.prev_channels = channels
+            self.prev_channels = channels
+        return 1
 
 def update_name(name, number):
     if name.startswith("("):
@@ -143,27 +144,16 @@ def update_name(name, number):
     return "(%d) %s" % (number, name.strip())
 
 def enumerate_tabs():
-    # userdata passed to callback, used to print out introspection info
     try:
         gtk.gtk_container_foreach(gtkwin, GTKCALLBACK(F().cb), None)
     except:
         pass # squelch errors
 
-def joinpart_cb(word, word_eol, data):
-    nick = xchat.get_info("nick")
-    target = word[0][1:word[0].index("!")]
-    if nick == target:
-        enumerate_tabs()
-
-
-joinhook    = xchat.hook_server("JOIN",    F().update_cb)
-privmsghook = xchat.hook_server("PRIVMSG", F().update_cb)
-parthook    = xchat.hook_server("PART",    F().update_cb)
+# no reliable way of hooking UI changes, poll every 1/4s instead  :-/
+timerhook = xchat.hook_timer(250, F().update_cb)
 
 def unload_cb(arg):
-    xchat.unhook(joinhook)
-    xchat.unhook(parthook)
-    xchat.unhook(privmsghook)
+    xchat.unhook(timerhook)
     xchat.unhook(unloadhook)
 
 unloadhook = xchat.hook_unload(unload_cb)
