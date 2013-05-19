@@ -28,6 +28,7 @@ Requirements
 -------------
 
 * Any version of HexChat 2.9.6b1 or greater that supports Python
+* Python 2.7, none of these addons have been tested nor developed on Python3
 
 tabxhider implementation method
 -------------------------------
