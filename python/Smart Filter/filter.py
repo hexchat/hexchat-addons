@@ -3,8 +3,6 @@ __module_version__ = '1.0'
 __module_description__ = 'Filters join/part messages'
 
 import xchat
-from re import compile
-from re import UNICODE
 from time import time
 
 last_seen = {} # For each entry: the key is the user's nickname, the entry
@@ -20,7 +18,7 @@ def new_msg(word, word_eol, userdata):
     not be altered. Otherwise, a '(logged in Xs ago)' message will be appended.
     
     """
-    user = strip_color(word[0])
+    user = xchat.strip(word[0])
     # If the user logged in before we did (which means the Join part of
     # filter_msg didn't take effect), add him to the dict.
     try:
@@ -30,14 +28,14 @@ def new_msg(word, word_eol, userdata):
     # If the user has never spoken before, let us know when he logged in.
     if last_seen[user][1] == 0:
         time_diff = time() - last_seen[user][0]
-        xchat.prnt("%s\t\003%s \00307(logged in %ss ago)" % (word[0], word[1],
+        xchat.prnt("%s\t\017%s \00307(logged in %ss ago)" % (word[0], word[1],
                                                           int(time_diff)))
         last_seen[user]= [time(), 1]
         return xchat.EAT_XCHAT
 
 def filter_msg(word, word_eol, userdata):
     """Filters join and part messages"""
-    user = strip_color(word[0])
+    user = xchat.strip(word[0])
     # If the user just joined, add him to the dict and mark him as such
     if userdata == 'Join':
         last_seen[user] = [time(), 0]
@@ -52,11 +50,6 @@ def filter_msg(word, word_eol, userdata):
     # or join messages.
     if last_seen[user][1] == 0 or last_seen[user][0] + user_timeout < time():
         return xchat.EAT_XCHAT
-
-def strip_color(s):
-    """Returns the string s, with color removed."""
-    regex = compile("\x03(?:\d{1,2}(?:,\d{1,2})?)?", UNICODE)
-    return regex.sub("", s)
 
 
 xchat.hook_print('Channel Message', new_msg)
