@@ -1,10 +1,10 @@
-Join/Part Filter
+Smart Filter
 ================
 * A plugin that filters join and part/quit messages, in order to reduce spam.
 
 Installation:
 =============
-* To install, move filter.py to your path_to_HexChat_config/plugins directory.
+* To install, move filter.py to your path_to_HexChat_config/addons directory.
 
 Requirements:
 =============
