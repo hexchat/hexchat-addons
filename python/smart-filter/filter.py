@@ -32,14 +32,19 @@ def new_msg(word, word_eol, userdata):
                                                           int(time_diff)))
         last_seen[user]= [time(), 1]
         return xchat.EAT_XCHAT
+    else:
+        last_seen[user]= [time(), 1]
 
 def filter_msg(word, word_eol, userdata):
     """Filters join and part messages"""
     user = xchat.strip(word[0])
     # If the user just joined, add him to the dict and mark him as such
     if userdata == 'Join':
-        last_seen[user] = [time(), 0]
-        return xchat.EAT_XCHAT
+        try:
+            last_seen[user]
+        except KeyError:
+            last_seen[user] = [time(), 0]
+            return xchat.EAT_XCHAT
     # If the user changed his nick, check if we've been tracking him before
     # and transfer his stats if so. Otherwise, add him to the dict.
     elif userdata == 'Nick':
@@ -62,7 +67,7 @@ def filter_msg(word, word_eol, userdata):
 
 
 xchat.hook_print('Channel Message', new_msg)
-xchat.hook_print('Channel Msg Hilite', new_msg)
+xchat.hook_print('Channel Msg Hilight', new_msg)
 xchat.hook_print('Join', filter_msg, 'Join')
 xchat.hook_print('Change Nick', filter_msg, 'Nick')
 xchat.hook_print('Part', filter_msg)
