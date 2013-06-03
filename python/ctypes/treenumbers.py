@@ -90,6 +90,7 @@ class Server(Structure):
                ,("proxy_sok6",         c_int)
                ,("msp_state",          MSProxyState)
                ,("id",                 c_int)
+               # uncomment/comment per your config as appropriate
                #ifdef USE_SSL
                ,("ssl",                c_void_p)
                ,("ssl_do_connect_tag", c_int)
@@ -172,7 +173,6 @@ class TreeNumerator:
 
         if gobject.g_type_check_instance_is_a(gobj,
                 gtk.gtk_tree_view_get_type()):
-            number = 1
             gtk.gtk_tree_view_set_show_expanders(gobj, 0)
             gtk.gtk_tree_view_set_enable_tree_lines(gobj, 0)
             gtk.gtk_tree_view_set_level_indentation(gobj, 0)
@@ -190,18 +190,26 @@ class TreeNumerator:
         v = c_char_p()
         chan = POINTER(Chan)()
         gtk.gtk_tree_model_get(self.treestore, byref(iter),
+                0, byref(v),    # COL_NAME
                 1, byref(chan), # COL_CHAN
                 -1)
 
+        oldname = v.value
+        idx = v.value.find(" ")
+        if idx > 0:
+            oldname = v.value[idx:].strip()
+
+        glib.g_free(v)
+        activity = 0
         if chan:
             oldname = chan.contents.userdata.contents.channel
             server = chan.contents.userdata.contents.server
-            activity = 0
             if server:
                 servername = server.contents.servername
                 if servername:
                     activity = self.get_activity(servername, oldname)
 
+        if oldname:
             newlabel = "(%d) %s" % (n, oldname.strip())
             if activity != 0:
                 newlabel = "%s : %d" % (newlabel, activity)
@@ -215,6 +223,7 @@ class TreeNumerator:
         else:
             return True
 
+    # prevent concurrent execution
     enumerating = False
     def enumerate_tabs(self):
         if self.enumerating:
@@ -254,17 +263,6 @@ class TreeNumerator:
             xchat.unhook(self.timerhook)
         self.timerhook = None
 
-    def get_update_cb(self, delay=250, force=False, eatmode=xchat.EAT_NONE):
-
-        def update_cb(word=None, word_eol=None, data=None):
-            channels = map(lambda c: c.channel, xchat.get_list("channels"))
-            if force or (
-                    self.prev_channels != channels and not self.timerhook):
-                self.timerhook = xchat.hook_timer(delay, self.enumerate_cb)
-                self.prev_channels = channels
-            return eatmode
-        return update_cb
-
     def get_activity(self, server, channel):
         key = server + ":" + channel
         if key not in self.activity:
@@ -287,10 +285,13 @@ class TreeNumerator:
         return xchat.EAT_NONE
 
     def activity_cb(self, word=None, word_eol=None, data=None):
-        ctx = xchat.get_context()
-        if ctx != xchat.find_context():
-            channel = xchat.get_context().get_info("channel")
-            server = xchat.get_context().get_info("server")
+        # enable after 2.9.6beta3
+        # see:
+        # https://github.com/hexchat/hexchat/commit/855c20501baba9e0bcda546b6c07f20dc5648659
+        # http://forum.xchat.org/viewtopic.php?f=5&t=7558
+        if xchat.get_context() != xchat.find_context():
+            channel = xchat.get_info("channel")
+            server = xchat.get_info("server")
             self.add_activity(server, channel)
         return xchat.EAT_NONE
 
@@ -298,6 +299,8 @@ class TreeNumerator:
         try:
             self.enumerate_tabs()
         except RuntimeError as e:
+            self.log("unable to enumerate tabs: %s" % e)
+        except WindowsError as e:
             self.log("unable to enumerate tabs: %s" % e)
         return 1
 
@@ -322,18 +325,9 @@ def unload_cb(arg):
 hooks.append(xchat.hook_unload(unload_cb))
 
 def init(ignore_data=None):
-    # concurrent updates, or near concurrent updates seem to trigger crashes
-    # perform updates every half second instead
     hooks.append(xchat.hook_timer(500, numerator.update_timer_cb))
-    #hooks.append(xchat.hook_print("Key Press", numerator.get_update_cb()))
-    #hooks.append(xchat.hook_print("Open Context",
-    #    numerator.get_update_cb(750, True)))
-    #hooks.append(xchat.hook_print("Focus Tab",
-    #    numerator.get_update_cb(force=True)))
     hooks.append(xchat.hook_print("Focus Tab",
         numerator.reset_activity_cb))
-    #hooks.append(xchat.hook_print("Close Context",
-    #    numerator.get_update_cb(force=True)))
 
     for evt in ('Channel Action Hilight'
                ,'Channel Msg Hilight'
@@ -344,7 +338,11 @@ def init(ignore_data=None):
         hooks.append(xchat.hook_print(evt, numerator.activity_cb))
 
 
-    numerator.enumerate_tabs()
+    try:
+        numerator.enumerate_tabs()
+    except WindowsError as e:
+        numerator.log("error on initial enumeration")
+
     numerator.log("successfully loaded")
     return 0 # do not repeat timer
 
