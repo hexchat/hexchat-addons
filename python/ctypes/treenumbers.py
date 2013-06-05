@@ -1,5 +1,7 @@
 from ctypes import *
 import xchat
+import traceback
+import sys
 
 __module_name__        = "treenumbers"
 __module_version__     = "1.0"
@@ -245,7 +247,7 @@ class TreeNumerator:
 
             number = number + 1
 
-            while self.process_tab(child, number) and has_children:
+            while has_children and self.process_tab(child, number):
                 number = number + 1
 
             if has_children:
@@ -299,9 +301,10 @@ class TreeNumerator:
         try:
             self.enumerate_tabs()
         except RuntimeError as e:
-            self.log("unable to enumerate tabs: %s" % e)
+            self.log("R: unable to enumerate tabs: %s" % e)
         except WindowsError as e:
-            self.log("unable to enumerate tabs: %s" % e)
+            self.log("W: unable to enumerate tabs: %s" %
+                    traceback.format_exception(*sys.exc_info()))
         return 1
 
     def log(self, msg):
@@ -331,7 +334,6 @@ def init(ignore_data=None):
 
     for evt in ('Channel Action Hilight'
                ,'Channel Msg Hilight'
-               ,'Channel Action'
                ,'Channel Message'
                ,'Private Message to Dialog'
                ,'Private Action to Dialog'):
