@@ -235,6 +235,8 @@ class TreeNumerator:
         number = 1
 
         iter = GtkTreeIter()
+        if not store:
+            return
         has_next = gtk.gtk_tree_model_get_iter_first(
                 store, byref(iter))
 
