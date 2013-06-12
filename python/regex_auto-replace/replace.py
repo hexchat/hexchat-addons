@@ -82,7 +82,7 @@ def get_regex(s):
     """
     try:
         regex = shlex.split(s)
-    except ValueError,e:
+    except(ValueError,e):
         xchat.prnt(str(e))
         return None
     if len(regex) == 2:
@@ -103,4 +103,4 @@ xchat.hook_command("RE_ADD", add_regex)
 xchat.hook_command("RE_REM", remove_regex)
 xchat.hook_command("RE_LIST", list_regex)
 
-print "\00304", __module_name__, "successfully loaded.\003"
+print("\00304", __module_name__, "successfully loaded.\003")
