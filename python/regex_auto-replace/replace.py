@@ -87,7 +87,7 @@ def get_regex(s):
     """
     try:
         regex = shlex.split(s)
-    except ValueError,e:
+    except ValueError as e:
         xchat.prnt(str(e))
         return None
     if len(regex) == 2:
@@ -120,4 +120,4 @@ xchat.hook_command("RE_LIST", list_regex,
                    help=("/RE_LIST\n"
                          "Lists all pattern/repl couples."))
 
-print "\00304", __module_name__, "successfully loaded.\003"
+print("\00304", __module_name__, "successfully loaded.\003")
