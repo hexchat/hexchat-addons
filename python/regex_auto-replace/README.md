@@ -1,6 +1,6 @@
 Regex Auto Replace
 ================
-* Replaces regex patterns in the user's input when the Enter key is pressed.
+* Replaces regex patterns in the user's input when the Return key is pressed.
 * Commands:
   * /RE_ADD <regex pattern> <replacement> - Adds a pattern/repl couple.
   * /RE_REM <index> - Removes the pattern/repl couple.
