@@ -28,7 +28,6 @@ def new_msg(word, word_eol, userdata):
         time_diff = time() - last_seen[user][0]
         # Bold the username and color the text if it's a hilight
         if "Hilight" in userdata:
-            xchat.prnt("word: " + '_'.join(word))
             s_user = "\002" + word[0]
             s_msg = "\017\00319" + word[1]
         else:
