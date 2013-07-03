@@ -3,6 +3,9 @@ Spotify Now Playing plugin for HexChat
 
 This plugin outputs your current playing song in Spotify to the channel.
 
+### Download
+You can find the dll's on [dl.hexchat.org](http://dl.hexchat.org/addons/)
+
 ### Installation
 Download the .dll from the `bin` directory. Use `hcspotify.dll` if you are using 32-bit HexChat, or `hcspotify_x64.dll` if you are using 64-bit HexChat. Put it in `%APPDATA%\HexChat\addons` (or wherever you like. Keeping it in `%APPDATA%\HexChat\addons` will keep the addon between HexChat updates). In HexChat go to Window > Plugins and Scripts..., then click Load and select the .dll.
 
