@@ -1,3 +1,7 @@
 [submodule "python/xchat-deadbeef"]
 	path = python/xchat-deadbeef
 	url = https://github.com/iceTwy/xchat-deadbeef.git
+
+[submodule "c/javascript"]
+	path = c/javascript
+	url = https://github.com/TingPing/hexchat-javascript.git
