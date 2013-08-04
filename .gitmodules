@@ -1,0 +1,3 @@
+[submodule "python/xchat-deadbeef"]
+	path = python/xchat-deadbeef
+	url = https://github.com/iceTwy/xchat-deadbeef.git
