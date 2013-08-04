@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ImportGroup Label="PropertySheets" />
+
+	<PropertyGroup Label="UserMacros">
+
+		<!-- SPECIFY YOUR DEPENDENCY DIRECTORIES HERE -->
+
+		<YourTclPath>c:\mozilla-build\tcl-8.5</YourTclPath>
+
+		<!-- YOU SHOULDN'T TOUCH ANYTHING BELOW -->
+
+		<TclPath>$(YourTclPath)\$(PlatformName)</TclPath>
+        <TclLib>tcl85</TclLib>
+        <TclOutput>hctcl</TclOutput>
+	</PropertyGroup>
+
+	<ItemDefinitionGroup>
+		<ClCompile>
+			<WarningLevel>Level3</WarningLevel>
+			<DisableSpecificWarnings>4996</DisableSpecificWarnings>
+		</ClCompile>
+	</ItemDefinitionGroup>
+
+	<ItemGroup />
+</Project>
