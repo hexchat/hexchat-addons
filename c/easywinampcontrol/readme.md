@@ -47,17 +47,12 @@ Version 1.3
 Download
 --------
 
-<<<<<<< HEAD
-* [Version 1.3.8 (32bit)](http://dl.hexchat.org/addons/hexchat_winampctrl_x32.dll)  
-* [Version 1.3.8 (64bit)](http://dl.hexchat.org/addons/hexchat_winampctrl_x64.dll)  
-=======
 * [Version 1.3.9 (32bit)](dl.hexchat.net/addons/hexchat_winampctrl_x86.dll)  
 * [Version 1.3.9 (64bit)](dl.hexchat.net/addons/hexchat_winampctrl_x64.dll)  
->>>>>>> Winamp Control 1.3.9, Perl Autoaway script
 
 You can download the older version if you still use a version of Hexchat that uses xchat type plugins (if the new one doesn't work, try this one):
-* [Version 1.3.7 (32bit)](http://dl.hexchat.org/addons/winampctrl_x32.dll)  
-* [Version 1.3.7 (64bit)](http://dl.hexchat.org/addons/winampctrl_x64.dll)  
+* [Version 1.3.7 (32bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x32.dll)  
+* [Version 1.3.7 (64bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x64.dll)  
 
 Installation
 ------------
@@ -103,10 +98,5 @@ Known Bugs
 
 Testing
 -------
-<<<<<<< HEAD
-* Tested with HexChat 2.9.1 x64 and Winamp 5.63
-* Tested with HexChat 2.9.3 x64 and foobar2000 v1.1.16 with foo_winamp_spam Winamp API Emulator 0.96
-=======
 * Tested with HexChat 2.9.1, 2.9.5 x64 and Winamp 5.63
 * Tested with HexChat 2.9.3, 2.9.5 x64 and foobar2000 v1.1.16 with foo_winamp_spam Winamp API Emulator 0.96
->>>>>>> Winamp Control 1.3.9, Perl Autoaway script
