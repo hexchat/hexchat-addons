@@ -1,4 +1,4 @@
-EasyWinampControl 1.3.8
+EasyWinampControl 1.3.9
 =======================
 
 Forked from <http://easywinampcontrol.mandragor.org/>, and then from <https://github.com/KevinLi/EasyWinampControl>
@@ -6,6 +6,11 @@ Licensed under the [GNU Lesser General Public License (LGPL)](http://www.gnu.org
 
 What's new
 ----------
+Version 1.3.9
+
+* Added support for a disabled "Show playlist number" winamp option (no longer removes the first word in the artist's name)
+* Fixed additionnal space after song name
+
 Version 1.3.8
 
 * Used new hexchat header, rebranded everything to work with it
@@ -42,8 +47,8 @@ Version 1.3
 Download
 --------
 
-* [Version 1.3.8 (32bit)](https://github.com/downloads/hexchat/hexchat-addons/hexchat_winampctrl_x32.dll)  
-* [Version 1.3.8 (64bit)](https://github.com/downloads/hexchat/hexchat-addons/hexchat_winampctrl_x64.dll)  
+* [Version 1.3.9 (32bit)](dl.hexchat.net/addons/hexchat_winampctrl_x86.dll)  
+* [Version 1.3.9 (64bit)](dl.hexchat.net/addons/hexchat_winampctrl_x64.dll)  
 
 You can download the older version if you still use a version of Hexchat that uses xchat type plugins (if the new one doesn't work, try this one):
 * [Version 1.3.7 (32bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x32.dll)  
@@ -89,9 +94,9 @@ Compilation
 
 Known Bugs
 ----------
-* Unicode characters grabbed from foobar2000 with the Winamp Plugin display as '?'. This is an issue with unicode handling in the foobar2000 plugin.
+* Unicode characters grabbed from foobar2000 with the Winamp Plugin display as '?'. This is an issue with unicode handling in the foobar2000 plugin which I might attempt to fix in said plugin.
 
 Testing
 -------
-* Tested with HexChat 2.9.1 x64 and Winamp 5.63
-* Tested with HexChat 2.9.3 x64 and foobar2000 v1.1.16 with foo_winamp_spam Winamp API Emulator 0.96
+* Tested with HexChat 2.9.1, 2.9.5 x64 and Winamp 5.63
+* Tested with HexChat 2.9.3, 2.9.5 x64 and foobar2000 v1.1.16 with foo_winamp_spam Winamp API Emulator 0.96
