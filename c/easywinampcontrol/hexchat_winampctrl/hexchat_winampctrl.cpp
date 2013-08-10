@@ -62,15 +62,23 @@ std::string to_utf8(const wchar_t* buffer, int len)
 std::wstring* GetCurrentSongsName(HWND hwndWinamp)
 {
 	wchar_t wtit[1024];
-
+	std::wstring *digits = new std::wstring(L"0123456789");
     GetWindowTextW(hwndWinamp,wtit,1024);
 	std::wstring *strTitle = new std::wstring(wtit);
+	//Checks for and deletes the sequences of * characters added when 
+	//the scroll title is active, wherever in the title they may be at that moment
 	if ((strTitle->find(L"**") < strTitle->length()-3)&&(strTitle->find(L"**")!=strTitle->npos)) {
 		strTitle->assign(strTitle->substr(strTitle->find(L" ", strTitle->find(L"**"))+1));
 	}
-    strTitle->assign(strTitle->substr(strTitle->find(L" ")+1)); // Deletes the . and the following white space
-    strTitle->erase(strTitle->find(L"- Winamp"));// Deletes the trailing "- winamp"		
-
+	//Checks if Winamp is using the show playlist number option and removes the sequence if it is
+	int firstSpacePosition = strTitle->find(L" ");
+	if (firstSpacePosition>=2) {
+		if (strTitle->at(firstSpacePosition-1)=='.' && digits->find(strTitle->at(firstSpacePosition-2))!=digits->npos) {
+			strTitle->assign(strTitle->substr(firstSpacePosition+1)); // Deletes the "#. " sequence
+		} 
+	}
+    strTitle->erase(strTitle->find(L" - Winamp"));// Deletes the trailing " - Winamp"		
+	delete digits;
 	return strTitle; 
 }
 
@@ -86,10 +94,9 @@ static int wp_cb(char *word[], char *word_eol[], void *userdata)
 	std::string this_title;
 	LPCWSTR winName=L"Winamp v1.x";
 
-    if ((hwndWinamp = FindWindow(winName,NULL)) == NULL)
+    if ((hwndWinamp = FindWindow(winName,NULL)) == NULL) {
         hexchat_print(ph, "Winamp window not found. Is Winamp running?\n");
-    else // Winamp's running
-    {
+	} else {     // Winamp's running
         // Seems buggy when Winamp2's agent is running, and Winamp not (or Winamp3) -> crashes XChat.
         SendMessage(hwndWinamp, WM_USER, (WPARAM)0, (LPARAM)IPC_GETLISTPOS);
         strTitle=GetCurrentSongsName(hwndWinamp);
@@ -215,6 +222,7 @@ static int wp_cb(char *word[], char *word_eol[], void *userdata)
             hexchat_printf(ph, "Current track: %s[%0d:%d/%0d:%d]\n",
                          this_title, eminutes, eseconds, minutes, seconds);
         }
+		delete strTitle;
     }
     return HEXCHAT_EAT_ALL;   /* eat this command so xchat and other plugins can't process it */
 }
@@ -231,7 +239,7 @@ extern "C" {
 
 		*plugin_name = "EasyWinampControl";
 		*plugin_desc = "Plugin for remotely controlling Winamp";
-		*plugin_version = "1.3.8";
+		*plugin_version = "1.3.9";
 
 		hexchat_hook_command(ph, "wp", HEXCHAT_PRI_NORM, wp_cb,
 						   "Usage: wp [ n  |  b  |  p  |  s  |  q   ]\n"\
