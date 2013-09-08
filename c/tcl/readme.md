@@ -1,3 +1,15 @@
+##Windows
+
+###Downloads
+
+Downloads can be found here: http://dl.hexchat.net/addons/
+
+###Installation
+
+Place the *.dll* in *%APPDATA%\HexChat\addons*
+
+##Unix
+
 ###Building
 
 1. Install the dev tools for your distro
