@@ -57,6 +57,7 @@ def announce_cb(word, word_eol, userdata):
 			elif word[1] == 'remove':
 				try:
 					announce_list.remove(word[2])
+					save_list()
 				except: pass
 			else:
 				hexchat.command('help announce')
