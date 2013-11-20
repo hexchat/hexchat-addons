@@ -141,7 +141,7 @@ static int lxc_gettext(lua_State *L);
 
 static int lxc_bits(lua_State *L);
 
-static luaL_reg lxc_functions[] = {
+static luaL_Reg lxc_functions[] = {
 	{"hook_command",		lxc_hook_command },
 /* TODO:
 	{"hook_fd",				lxc_hook_fd      },
@@ -448,8 +448,7 @@ void lxc_unload_script(struct lxc_States *state)
 	struct lxc_userdata *ud, *u;
 	lua_State *L = state->state;
 
-	lua_pushstring(L, "xchat_unload");
-	lua_gettable(L, LUA_GLOBALSINDEX);
+	lua_getglobal(L, "xchat_unload");
 	if (lua_type(L, -1) == LUA_TFUNCTION) {
 		if (lua_pcall(L, 0, 0, 0)) {
 			hexchat_printf(ph, "Lua plugin: error while unloading script %s", 	
@@ -540,8 +539,7 @@ static int lxc_cb_load(char *word[], char *word_eol[], void *userdata)
 			if (state->next == NULL) {
 				L = state->state;
 
-				lua_pushstring(L, "xchat_register");
-				lua_gettable(L, LUA_GLOBALSINDEX);
+				lua_getglobal(L, "xchat_register");
 				if (lua_pcall(L, 0, 3, 0)) {
 					hexchat_printf(ph, "Lua plugin: error registering script %s", 	
 								lua_tostring(L, -1));
@@ -559,8 +557,7 @@ static int lxc_cb_load(char *word[], char *word_eol[], void *userdata)
 																 name, desc, vers, NULL
 															);
 
-				lua_pushstring(L, "xchat_init");
-				lua_gettable(L, LUA_GLOBALSINDEX);
+				lua_getglobal(L, "xchat_init");
 				if (lua_type(L, -1) != LUA_TFUNCTION) 
 					lua_pop(L, 1);
 				else {
@@ -692,8 +689,7 @@ int hexchat_plugin_init(hexchat_plugin *plugin_handle,
 	state = lxc_states;
 	while (state) {
 		L = state->state;
-		lua_pushstring(L, "xchat_register");
-		lua_gettable(L, LUA_GLOBALSINDEX);
+		lua_getglobal(L, "xchat_register");
 		if (lua_pcall(L, 0, 3, 0)) {
 			hexchat_printf(ph, "Lua plugin: error registering script %s", 	
 								lua_tostring(L, -1));
@@ -708,8 +704,7 @@ int hexchat_plugin_init(hexchat_plugin *plugin_handle,
 		lua_pop(L, 4); /* func + 3 ret value */
 		state->gui = hexchat_plugingui_add(ph, state->file, name, desc, vers, NULL);
 
-		lua_pushstring(L, "xchat_init");
-		lua_gettable(L, LUA_GLOBALSINDEX);
+		lua_getglobal(L, "xchat_init");
 		if (lua_type(L, -1) != LUA_TFUNCTION) 
 			lua_pop(L, 1);
 		else {
@@ -760,8 +755,7 @@ static int lxc_run_hook(char *word[], char *word_eol[], void *data)
 	struct lxc_userdata *ud = cb->data;
 	struct lxc_userdata *u;
 	int i;
-	lua_pushstring(L, cb->func);
-	lua_gettable(L, LUA_GLOBALSINDEX);
+	lua_getglobal(L, cb->func);
 
 	strcpy(lxc_event_name, word[0]);
 	lua_newtable(L);
@@ -1002,8 +996,7 @@ static int lxc_run_print(char *word[], void *data)
 	lua_State *L          = cb->state;
 	int i;
 
-	lua_pushstring(L, cb->func);
-	lua_gettable(L, LUA_GLOBALSINDEX);
+	lua_getglobal(L, cb->func);
 
 	strcpy(lxc_event_name, word[0]);
 	lua_newtable(L);
@@ -1320,8 +1313,7 @@ static void lxc_unhook_timer(lua_State *L, hexchat_hook *hook)
 	hexchat_hook *hook      = cb->hook;
 	lua_State *L          = cb->state;
 
-	lua_pushstring(L, cb->func);
-	lua_gettable(L, LUA_GLOBALSINDEX);
+	lua_getglobal(L, cb->func);
 
 	if (lua_pcall(L, 0, 1, 0)) {
 		hexchat_printf(ph, "failed to call timer callback for '%s': %s", 
