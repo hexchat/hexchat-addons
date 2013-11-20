@@ -1,17 +1,19 @@
 #!/usr/bin/env python
-#create a function to both print and say to current channel....
-__module_name__ = "DownForAll"
-__module_version__ = "0.1"
-__module_description__ = "Parses downforeveryoneorjustme.com for you [/isdown]"
 
+from __future__ import print_function
 import re
 import urllib2
 import xchat
 
-print "\0034",__module_name__, __module_version__,"(/isdown) loading...\003";
+__module_name__ = "DownForAll"
+__module_version__ = "0.2"
+__module_description__ = "Parses downforeveryoneorjustme.com for you [/isdown]"
+
+print("\0034", __module_name__, __module_version__, "(/isdown) loading...\003")
+
 def isdown(word, word_eol, userdata):
 	if len(word) < 2:
-    		print("Choose a website")
+		print("Choose a website")
 	else:
 		link = "http://downforeveryoneorjustme.com/" + word[1]
 	
@@ -25,12 +27,10 @@ def isdown(word, word_eol, userdata):
 		up = re.findall('is up', source)
 
 		try:
-    			if up[0] == 'is up':
- 					xchat.command("PRIVMSG "+xchat.get_info("channel") + word[1] + " is up for me.")
-					xchat.prnt(word[1] + " is up for me!")
+			if up[0] == 'is up':
+				xchat.command("say {} is up for me.".format(word[1]))
 		except:
-    			xchat.command("PRIVMSG " +xchat.get_info("channel") + word[1] + " is down for me.")
-			xchat.prnt(word[1] + " is down for me !")
-    		pass
+			xchat.command("say {} is down for me.".format(word[1]))
 
-xchat.hook_command("isdown", isdown, help="ISDOWN <site> Tells you if a site is down")
+xchat.hook_command("isdown", isdown, help="ISDOWN <site> Says to a channel if a site is down")
+
