@@ -81,12 +81,12 @@ def doSingleOp(user, context):
             context.command("op %s" % (user.nick))
 
 def handleTimedOp(userdata):
-        context = xchat.find_context(channel=userdata[1])
-	userlist = context.get_list("users")
-	for user in userlist:
-	    if user.nick == userdata[0]:
-		doSingleOp(user, context)
-	return 0 # Stop the timer
+    context = xchat.find_context(channel=userdata[1])
+    userlist = context.get_list("users")
+    for user in userlist:
+        if user.nick == userdata[0]:
+            doSingleOp(user, context)
+    return 0 # Stop the timer
 
 
 #word[0] is the nick
