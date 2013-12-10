@@ -95,17 +95,17 @@ def handleTimedOp(userdata):
 def processJoin(word, word_eol,userdata):
     """Process a Join event.OP user if found in xaop list"""
     if amIOperator():
-	xchat.hook_timer(4000, handleTimedOp, word)
+        xchat.hook_timer(4000, handleTimedOp, word)
 
     return xchat.EAT_NONE
 
 def doAllOp():
     if not amIOperator():
-            return xchat.EAT_NONE
+        return xchat.EAT_NONE
     context = xchat.get_context()
     context.command("WHO " + context.get_info("channel"))
     for user in context.get_list("users"):
-         doSingleOp(user, context)
+        doSingleOp(user, context)
 
 def isValidMask(mask):
     """Returns True if "/xaop add" supplied "mask" is a valid hostmask"""
@@ -173,15 +173,13 @@ def addAop(params):
         if len(params) >= 4:
             print "Too many parameters!"
             raise IndexError,"Print this noob some help"
-        if  not isValidMask(params[0]) \
-        or not isValidChannelList(params[1]) \
-        or not isValidNetworkList(params[2]):
-            print "INVALID ADD STRING!\n"
-            raise IndexError,"Print this noob some help"
+        if not isValidMask(params[0]) \
+                or not isValidChannelList(params[1]) \
+                or not isValidNetworkList(params[2]):
+                    print "INVALID ADD STRING!\n"
+                    raise IndexError("Print this noob some help")
     except IndexError:
         printHelp()
-	return
-    #else:
     aopList.append( {"hostmask": params[0], "channels": params[1], "networks": params[2]} )
     print "  ".join(["Added",params[0],params[1],params[2]])
 
