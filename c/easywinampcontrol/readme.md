@@ -56,8 +56,9 @@ You can download the older version if you still use a version of Hexchat that us
 
 Installation
 ------------
-* Copy the plugin to XChat's plugin directory (ex: C:\Program Files\XChat-WDK\plugins\).
-* Start XChat (or HexChat/XChat-WDK). If the plugin hasn't automatically loaded, load it at the menu in "**Window > Plugins and Scripts**"
+* The addon can be used with either Winamp or foobar2000 by using the foo_winamp_spam component (https://github.com/RazielZ/foo_winamp_spam/releases/tag/v0.99) or a similar winamp API emualtor for foobar.
+* Copy the plugin to XChat's plugin directory (ex: C:\Program Files\XChat-WDK\plugins\) or Hexchat's plugin directory (C:\Users\YourUser\AppData\Roaming\HexChat\addons).
+* Start Hexchat (or XChat/XChat-WDK). If the plugin hasn't automatically loaded, load it at the menu in "**Window > Plugins and Scripts**"
 * Go to "**Settings > Advanced > User Commands...**", and add a command named **"dispcurrsong"**, which is what the plugin will display when **/wp** is used, and with a command such as "**me is now playing: &7 [%5/%6] %3kbps - %2Hz**".
 
 `
@@ -94,9 +95,9 @@ Compilation
 
 Known Bugs
 ----------
-* Unicode characters grabbed from foobar2000 with the Winamp Plugin display as '?'. This is an issue with unicode handling in the foobar2000 plugin which I might attempt to fix in said plugin.
+* None
 
 Testing
 -------
 * Tested with HexChat 2.9.1, 2.9.5 x64 and Winamp 5.63
-* Tested with HexChat 2.9.3, 2.9.5 x64 and foobar2000 v1.1.16 with foo_winamp_spam Winamp API Emulator 0.96
+* Tested with HexChat 2.9.3, 2.9.5 x64 and foobar2000 v1.2.9 with foo_winamp_spam Winamp API Emulator 0.99
