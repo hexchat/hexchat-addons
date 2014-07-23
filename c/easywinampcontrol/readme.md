@@ -56,33 +56,33 @@ Installation
 2. Install the dll in *%appdata%\HexChat\addons*
 3. Go to *Settings > User Commands...* and add a command named "dispcurrsong", which is what the plugin will display when **/wp** is used, and with a command such as "me is now playing: &7 [%5/%6] %3kbps - %2Hz".
 
-`
+```
 %2    Sample rate  
 %3    Bitrate  
 %4    Number of channels  
 %5    Elapsed time  
 %6    Track's length  
 &7    Track's title
-`
+```
 
-* If foobar2000 is being used with foo_winamp_spam, &7 can be configured in **Library > Configure > Winamp API Emulator**
-* To have */wp* output, for example, **`(Nick) is listening to: Shpongle - Nothing is Something Worth Doing [2:15/6:25]`**:
-  * foobar2000's foo\_winamp_spam should be set with something like
-     * **`[%artist% - ]$if(%title%,%title%,%_filename%)`**.
-  * XChat's "**dispcurrsong**" user command should be set to
-     * **`me is listening to: &7[%5/%6]`**
-  * User-defined commands can be found at
-     * **Settings -> Advanced -> User Commands**.
+If foobar2000 is being used with foo_winamp_spam, &7 can be configured in *Library > Configure > Winamp API Emulator*
+To have */wp* output, for example, *(Nick) is listening to: Shpongle - Nothing is Something Worth Doing [2:15/6:25]*:
+
+1. foobar2000's foo\_winamp\_spam should be set with something like "[%artist% - ]$if(%title%,%title%,%_filename%)".
+2. HexChat's "dispcurrsong" user command should be set to "me is listening to: &7[%5/%6]"
 
 How to use EasyWinampControl
 ----------------------------
-    /wp      Displays current track to the channel/user  
-    /wp b    Plays the previous track  
-    /wp p    Plays/restarts playing the current track  
-    /wp q    Pauses/continues the current track  
-    /wp s    Stops playing the current track  
-    /wp n    Plays the next track, and prints its title  
-    /wp c    Displays the current track
+
+```
+/wp      Displays current track to the channel/user  
+/wp b    Plays the previous track  
+/wp p    Plays/restarts playing the current track  
+/wp q    Pauses/continues the current track  
+/wp s    Stops playing the current track  
+/wp n    Plays the next track, and prints its title  
+/wp c    Displays the current track
+```
 
 Compilation
 -----------
