@@ -50,16 +50,11 @@ Download
 * [Version 1.3.9 (32bit)](http://dl.hexchat.net/addons/hexchat_winampctrl_x86.dll)  
 * [Version 1.3.9 (64bit)](http://dl.hexchat.net/addons/hexchat_winampctrl_x64.dll)  
 
-You can download the older version if you still use a version of Hexchat that uses xchat type plugins (if the new one doesn't work, try this one):
-* [Version 1.3.7 (32bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x32.dll)  
-* [Version 1.3.7 (64bit)](https://github.com/downloads/hexchat/hexchat-addons/winampctrl_x64.dll)  
-
 Installation
 ------------
-* The addon can be used with either Winamp or foobar2000 by using the foo_winamp_spam component (https://github.com/RazielZ/foo_winamp_spam/releases/tag/v0.99) or a similar winamp API emualtor for foobar.
-* Copy the plugin to XChat's plugin directory (ex: C:\Program Files\XChat-WDK\plugins\) or Hexchat's plugin directory (C:\Users\YourUser\AppData\Roaming\HexChat\addons).
-* Start Hexchat (or XChat/XChat-WDK). If the plugin hasn't automatically loaded, load it at the menu in "**Window > Plugins and Scripts**"
-* Go to "**Settings > Advanced > User Commands...**", and add a command named **"dispcurrsong"**, which is what the plugin will display when **/wp** is used, and with a command such as "**me is now playing: &7 [%5/%6] %3kbps - %2Hz**".
+1. Install either Winamp or foobar2000 with the [foo_winamp_spam](https://github.com/RazielZ/foo_winamp_spam/releases) component.
+2. Install the dll in *%appdata%\HexChat\addons*
+3. Go to *Settings > User Commands...* and add a command named "dispcurrsong", which is what the plugin will display when **/wp** is used, and with a command such as "me is now playing: &7 [%5/%6] %3kbps - %2Hz".
 
 `
 %2    Sample rate  
