@@ -1,5 +1,5 @@
 # Name: DMS-Nick-Trace
-# Version: 1.6.1
+# Version: 1.6.2
 # Original Source: http://www.electronic-culture.de/projects_xchat/nicktrace.html
 # Cleaned up and made prettier by Ryan659 
 # Description: Logs user's hostmasks when they join a channel, adding them to a database, 
@@ -15,6 +15,7 @@
 # Original changelog can be viewed at http://www.electronic-culture.de/projects_xchat/files/nicktrace.changelog.txt
 
 # Changelog:
+# 1.6.2: Handle ZNC playback with the buffextras module sanely
 # 1.6.1: Clean up code, add description, add Xchat import
 
 use warnings;
@@ -27,7 +28,7 @@ register($sname, $version, "Tracks nick changes.");
 
 prnt "\n\n\00312.::  $sname ::.\003\n";
 prnt "\00312:::  Version $version  :::\003\n";
-prnt "\00312:::    © DMS '05, '14    :::\003\n\n";
+prnt "\00312:::    Â© DMS '05, '14    :::\003\n\n";
 
 my $hostmasks=get_info("xchatdir");
 
@@ -124,6 +125,7 @@ sub joinHandler{
 	@parts2=split("@",$mask);
 	$ident=$parts2[0];
 	$hostmask=$parts2[1];
+	if (!$hostmask) { return EAT_NONE; }
 	$alias=checkAlias($nick,$ident,$hostmask);
 	&addAlias($nick,$ident,$hostmask)if ($autoAdd==1);
 	if ($outputType==0){ #join message
@@ -169,6 +171,7 @@ sub nickHandler{
 	@parts2=split("@",$parts1[1]);
 	$ident=$parts2[0];
 	$hostmask=$parts2[1];
+	if (!$hostmask) { return EAT_NONE; }
 	addAlias($nick,$ident,$hostmask);
 	return EAT_NONE;
 }
