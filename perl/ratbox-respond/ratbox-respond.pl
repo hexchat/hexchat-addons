@@ -1,5 +1,4 @@
 ## Author:	xnite <xnite@afraidirc.net>
-## Note for Windows Users:	You may want to use strawberry perl so that you can install the required perl modules easier.
 #
 # LICENSE
 # This program is free software: you can redistribute it and/or modify
