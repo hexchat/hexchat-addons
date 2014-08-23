@@ -2,6 +2,17 @@
 # Author Home:	http://xnite.me
 # Description:	Adds commands and functions especially useful for IRCops. Tested on Charybdis, I cannot guarantee that all of the commands will work for all IRCd's.
 # Feedback:		Please send feedback to me at xnite@AfraidIRC.net & prepend the email subject line with [OperBuddy].
+#
+# LICENSE
+# This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
 package IRC::XChat::OperBuddy;
 use strict;
 our $version=0.1;
