@@ -4,7 +4,7 @@ import urllib.request as urllib
 
 __module_name__ = "Jtv helper"
 __module_version__ = "0.2"
-__module_description__ = "Prints jtv messages (timeouts n' stuff)"
+__module_description__ = "General twitch.tv enchancements."
 
 NICKNAME = hexchat.get_info('nick')
 
