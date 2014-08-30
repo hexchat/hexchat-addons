@@ -21,10 +21,9 @@ def human_readable(s):
         ("months", int(s/30/24/60/60)%12),
         ("years", int(s/12/30/24/60/60))
     ]
-    for d in reversed(deltas):
-        if d[1] == 0:
-            continue
-        return '%d %s' % (d[1], d[1] > 1 and d[0] or d[0][:-1])
+    tarr = ['%d %s' % (d[1], d[1] > 1 and d[0] or d[0][:-1])
+        for d in reversed(deltas) if d[1]]
+    return " ".join(tarr[:2])
 
 def new_msg(word, word_eol, event, attrs):
     """Handles normal messages.
