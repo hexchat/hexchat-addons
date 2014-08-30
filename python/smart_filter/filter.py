@@ -12,6 +12,18 @@ user_timeout = 600 # If the user hasn't spoken for this amount of seconds, his
                    # join/part messages won't be shown
 halt = False
 
+def human_readable(s):
+    deltas = [
+        ("seconds", int(s)%60),
+        ("minutes", int(s/60)%60),
+        ("hours", int(s/60/60)%24),
+        ("days", int(s/24/60/60)%30),
+        ("months", int(s/30/24/60/60)%12),
+        ("years", int(s/12/30/24/60/60))
+    ]
+    tarr = ['%d %s' % (d[1], d[1] > 1 and d[0] or d[0][:-1])
+        for d in reversed(deltas) if d[1]]
+    return " ".join(tarr[:2])
 
 def new_msg(word, word_eol, event, attrs):
     """Handles normal messages.
@@ -31,7 +43,7 @@ def new_msg(word, word_eol, event, attrs):
     # If the user has never spoken before, let us know when he logged in.
     if last_seen[user][1] == 0:
         time_diff = time() - last_seen[user][0]
-        word[1] += " \00307(logged in %ss ago)" % int(time_diff)
+        word[1] += " \00307(logged in %s ago)" % human_readable(time_diff)
         halt = True
         hexchat.emit_print(event, *word)
         halt = False
