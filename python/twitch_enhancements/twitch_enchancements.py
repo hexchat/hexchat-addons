@@ -9,6 +9,7 @@ __module_description__ = "Prints jtv messages (timeouts n' stuff)"
 
 NICKNAME = hexchat.get_info('nick')
 liveChannels = []
+firstRun = 1
 
 def checkmessage_cb(word, word_eol, userdata):
 	string = ' '.join(word[0:3])
@@ -37,6 +38,8 @@ def stream_cb(word, word_eol, userdata):
 	return hexchat.EAT_ALL
 
 def checkStreams_cb(userdata):
+	if(firstRun):
+
 	channels = hexchat.get_list("channels")
 	realChannels = []
 	for channel in channels:
@@ -53,7 +56,7 @@ def checkStreams_cb(userdata):
 			format(channel.title() + " is live!")
 
 	return 1
-
+#hehehe
 def uptime_cb(word, word_eol, userdata):
 	user = hexchat.get_info("channel").strip('#')
 	url = 'https://api.twitch.tv/kraken/channels/' + user + '/videos?limit=1&broadcasts=true'
@@ -88,9 +91,8 @@ def loadJSON(url):
 hexchat.hook_server('PRIVMSG', checkmessage_cb)
 hexchat.hook_command('STREAM', stream_cb, help ="/STREAM Use in twitch.tv chats to check if the stream is online.")
 hexchat.hook_unload(unload_cb)
-hexchat.hook_timer(300000, checkStreams_cb)
+hexchat.hook_timer(10000, checkStreams_cb)
 
 hexchat.hook_command('UPTIME', uptime_cb)
 
-checkStreams_cb(None)
 print("\00304", __module_name__, __module_version__, "successfully loaded.\003")
