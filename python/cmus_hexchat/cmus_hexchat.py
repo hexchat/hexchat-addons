@@ -28,13 +28,16 @@ commands = {
     "NEXT": "next",
     "PREVIOUS": "previous",
     "TOGGLE": "toggle",
-    "HELP": "help"
+    "HELP": "help",
+    "NOTICE_PLAYING": "!playing"
     }
 
 def print_help():
     hexchat.prnt("\nCOMMANDS          USAGE")
     hexchat.prnt("------------------------------")
     hexchat.prnt("playing           prints the currently playing song in the channel.")
+    hexchat.prnt("!playing          print the currently playing song to the asking user.")
+    hexchat.prnt("                  \"/notice <name> !playing\"")
     hexchat.prnt("next              Skip forward in playlist.")
     hexchat.prnt("previous          Skip backwards in playlist.")
     hexchat.prnt("toggle            toggle pause/play.")
@@ -54,18 +57,18 @@ def get_tag(tag_name):
         if s.split(" ")[1] == tag_name:
             return s.replace("tag " + tag_name + " ", "")
             
-def print_song():
+def print_playing():
     output = get_status()
     if not "stopped" in output[0]:
         song = get_tag("artist") + " - " + get_tag("title")
     else:
         song = "Nothing!"
-    hexchat.command("me is listening to: " + song)
+    return song
     
 def on_command(args, args_eol, userdata):
     if len(args) > 1:
         if args[1] == commands['PLAYING']:
-            print_song()
+            hexchat.command("me is listening to: " + print_playing())
         elif args[1] == commands['TOGGLE']:
             subprocess.call(["cmus-remote", "-u"])
         elif args[1] == commands['NEXT']:
@@ -77,5 +80,11 @@ def on_command(args, args_eol, userdata):
             
     return hexchat.EAT_ALL
 
+def on_notice(args, args_eol, userdata):
+    if args[1] == "!playing":
+        hexchat.command("notice " + args[0] + " I am listening to: " + print_playing())
+        return hexchat.EAT_ALL
+
 hexchat.hook_command("cmus", on_command, help="/cmus <command> sends the " 
                         "command to cmus, /cmus help, for more info")
+hexchat.hook_print("notice", on_notice)
