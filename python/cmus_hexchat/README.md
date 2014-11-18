@@ -1,9 +1,9 @@
 cmus_hexchat
 ============
 
-Hexchat plugin to control Cmus.
+Hexchat plugin to control Cmus
 
-Original repo: https://github.com/Kiniamaro/cmus_hexchat/
+main repo: https://github.com/Kiniamaro/cmus_hexchat/
 
 ##usage
   ``/cmus <command>``
@@ -16,6 +16,14 @@ Original repo: https://github.com/Kiniamaro/cmus_hexchat/
    toggle            toggle pause/play.
    help              prints the help.
 ```
+``/notice <name> !playing`` upon receiving this notice you will send the asker the currently playing song (see ``playing``)
+
+```
+ex:
+    <user1> !playing
+    <self> I am listening to: Air - La femme d'argent
+```
+
 
 
 
@@ -25,4 +33,4 @@ Original repo: https://github.com/Kiniamaro/cmus_hexchat/
 - copy ``cmus_hexchat.py`` in ``~/.config/hexchat/addons/``
 
 ###Windows
-- copy ``cmus_hexchat.py`` in ``%APPDATA%\HexChat\addons\`` 
+- copy ``cmus_hexchat.py`` in ``%APPDATA%\HexChat\addons\``
