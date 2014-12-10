@@ -94,6 +94,7 @@ class Server(Structure):
                ,("id",                 c_int)
                # uncomment/comment per your config as appropriate
                #ifdef USE_SSL
+               ,("ctx",                c_void_p)
                ,("ssl",                c_void_p)
                ,("ssl_do_connect_tag", c_int)
                #else
@@ -116,6 +117,7 @@ class Session(Structure):
                ,("text_hidejoinpart", c_byte)
                ,("text_logging",      c_byte)
                ,("text_scrollback",   c_byte)
+               ,("text_strip",        c_byte)
                ,("server",            POINTER(Server))
                ,("usertree_alpha",    c_void_p)
                ,("usertree",          c_void_p)
@@ -237,6 +239,7 @@ class TreeNumerator:
         iter = GtkTreeIter()
         if not store:
             return
+
         has_next = gtk.gtk_tree_model_get_iter_first(
                 store, byref(iter))
 
@@ -284,8 +287,9 @@ class TreeNumerator:
     def reset_activity_cb(self, word=None, word_eol=None, data=None):
         channel = xchat.get_context().get_info("channel")
         server = xchat.get_context().get_info("server")
-        key = server + ":" + channel
-        self.activity[key] = 0
+        if server and channel:
+            key = server + ":" + channel
+            self.activity[key] = 0
         return xchat.EAT_NONE
 
     def activity_cb(self, word=None, word_eol=None, data=None):
@@ -305,8 +309,9 @@ class TreeNumerator:
         except RuntimeError as e:
             self.log("R: unable to enumerate tabs: %s" % e)
         except WindowsError as e:
-            self.log("W: unable to enumerate tabs: %s" %
-                    traceback.format_exception(*sys.exc_info()))
+            pass
+            #self.log("W: unable to enumerate tabs: %s" %
+            #        traceback.format_exception(*sys.exc_info()))
         return 1
 
     def log(self, msg):
