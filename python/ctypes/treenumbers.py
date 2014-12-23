@@ -318,9 +318,9 @@ class TreeNumerator:
         ctx = xchat.find_context(channel=">>python<<")
         if ctx:
             # using emit_print results in an infinite loop with activity_cb
+            # with anything we hook_print
             # even when filtering by channel != >>python<<
-            #ctx.emit_print("Channel Message", "treenumbers", msg)
-            ctx.prnt("treenumbers: %s" % msg)
+            ctx.emit_print("Notice", "treenumbers", msg)
 
 numerator = TreeNumerator()
 
