@@ -12,7 +12,7 @@ use Net::DBus;
 use Xchat qw(:all);
 
 my $PLUGIN_NAME = 'hexchat-gmb-nowplaying';
-my $PLUGIN_VERS = '0.5';
+my $PLUGIN_VERS = '0.6';
 my $PLUGIN_DESC = 'Gets information about the current song playing in gmusicbrowser.';
 
 register($PLUGIN_NAME, $PLUGIN_VERS, $PLUGIN_DESC);
@@ -33,4 +33,6 @@ sub now_playing {
 	my $bitrate = $song_info->{bitrate};
 
 	command("ACTION is listening to ${title} by ${artist} (${year}, '${album}') (${bitrate}kbps)")
+
+	return EAT_NONE;
 }
