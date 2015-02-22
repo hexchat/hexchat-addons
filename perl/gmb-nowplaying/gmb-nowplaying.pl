@@ -32,7 +32,7 @@ sub now_playing {
 	my $year = $song_info->{year};
 	my $bitrate = $song_info->{bitrate};
 
-	command("ACTION is listening to ${title} by ${artist} (${year}, '${album}') (${bitrate}kbps)")
+	command("ACTION is listening to ${title} by ${artist} (${year}, '${album}') (${bitrate}kbps)");
 
 	return EAT_NONE;
 }
