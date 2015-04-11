@@ -13,9 +13,13 @@
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
+
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 package IRC::XChat::OperBuddy;
 use strict;
-our $version=0.1;
+our $version=1.0;
 Xchat::register( "OperBuddy", $version, "Provides useful functions for IRCops", "");
 Xchat::hook_print('Open Dialog', "whois_on_query");
 Xchat::hook_server('382', 'server_rehash');
@@ -24,10 +28,11 @@ Xchat::hook_command('operbuddy', 'operbuddy_commands');
 Xchat::hook_command('setawaymsg', 'operbuddy_set_away_message');
 Xchat::hook_command('useautoaway', 'operbuddy_set_use_away_message');
 Xchat::hook_server('NOTICE', 'operbuddy_snotice');
-Xchat::hook_print('Private Message to Dialog', 'operbuddy_intercept_dummy_nicks');
 Xchat::hook_server('216', 'stats_g');
 Xchat::hook_server('709', 'operbuddy_global_invite_process');
 Xchat::hook_command('ginvite', 'operbuddy_global_invite_command');
+Xchat::hook_command('reroute', 'operbuddy_reroute');
+Xchat::hook_command('closechan', 'operbuddy_closechan');
 
 Xchat::print("\002[OperBuddy]\002 Loaded OperBuddy v".$version." by xnite <xnite\@AfraidIRC.net>.");
 if(!defined(Xchat::plugin_pref_get('OperBuddy_away_message'))) {
@@ -41,6 +46,33 @@ if(!defined(Xchat::plugin_pref_get('OperBuddy_use_away_message'))) {
 if(!defined(Xchat::plugin_pref_get('OperBuddy_away_message'))) {
 	Xchat::print("\002[OperBuddy]\002 Activating whois_on_query, you can change this setting with '/operbuddy set whois_on_query'");
 	Xchat::plugin_pref_set('OperBuddy_away_message', '[AutoReply]: I am currently away, please be patient until I return. If you need help please join #help');
+}
+
+sub operbuddy_reroute {
+	if(defined($_[0][2])) {
+		Xchat::print("\002[OperBuddy]\002 Re-Routing server ".$_[0][1]." to ".$_[0][2]."\n");
+		Xchat::command("SQUIT ".$_[0][1]." rerouting to ".$_[0][2]);
+		sleep(1);
+		Xchat::command("CONNECT ".$_[0][1]." 0 ".$_[0][2]);
+		Xchat::print("\002[OperBuddy]\002 Re-Routed server ".$_[0][1]." to ".$_[0][2]."\n");
+	} else {
+		Xchat::print("\002[OperBuddy]\002 Please provide the names of the servers you would like rerouted.\n");
+	}
+}
+
+sub operbuddy_closechan {
+	if(defined($_[0][2])) {
+		Xchat::print("\002[OperBuddy]\002 Redirecting closed channel, ".$_[0][1].", to ".$_[0][2]."\n");
+		Xchat::command("MODE ".$_[0][1]." +fpis ".$_[0][2]);
+		if(defined($_[0][3])) {
+			Xchat::command("PRIVMSG OperServ :CLEARCHAN KICK ".$_[0][1]." ".$_[1][3]);
+		} else {
+			Xchat::command("PRIVMSG OperServ :CLEARCHAN KICK ".$_[0][1]." This channel is being closed. Please join ".$_[0][2]." instead.");
+		}
+		Xchat::print("\002[OperBuddy]\002 Re-Routed server ".$_[0][1]." to ".$_[0][2]."\n");
+	} else {
+		Xchat::print("\002[OperBuddy]\002 Usage: /closechan <channel> <redirect-channel> \[Reason\]\n");
+	}
 }
 
 sub operbuddy_global_invite_command {
@@ -82,14 +114,6 @@ sub server_rehash {
 	return Xchat::EAT_ALL;
 }
 
-sub operbuddy_intercept_dummy_nicks {
-	my $to		= $_[0][0];
-	my $msg		= $_[1][1];
-	if($to =~ /OpBud\:WALLOPS/i) {
-		Xchat::command("WALLOPS ".$msg);
-		Xchat::EAT_ALL;
-	}
-}
 sub show_wallops {
 	my $who		= substr $_[0][0], 1;
 	my $message	= substr $_[1][2], 1;
@@ -109,8 +133,18 @@ sub operbuddy_commands {
 		if($command eq 'set') {
 			my $key		= $_[0][2];
 			my $value	= $_[1][3];
-			if($key eq 'away_message' || $key eq 'use_away_message' || $key eq 'whois_on_query' || $key eq 'global_invite') {
-				if($key eq 'use_away_message' || $key eq 'whois_on_query' || $key eq 'global_invite') {
+			if($key eq 'away_message'
+				|| $key eq 'use_away_message'
+				|| $key eq 'whois_on_query'
+				|| $key eq 'global_invite'
+				|| $key eq 'show_full_server_name'
+				|| $key eq 'netsplit_audio_file'
+			) {
+				if($key eq 'use_away_message'
+					|| $key eq 'whois_on_query'
+					|| $key eq 'global_invite'
+					|| $key eq 'show_full_server_name'
+				) {
 					if($value != 0 && $value != 1) {
 						Xchat::print("\002[OperBuddy]\002 Value must be a 1 or 0!");
 					} else {
@@ -146,20 +180,29 @@ sub operbuddy_commands {
 
 sub operbuddy_snotice {
 	my $me			= $_[0][2];
-	my @server_array	= split(/\./, substr $_[0][0], 1);
-	my $server		= $server_array[0];
+	our $server;
+	if(Xchat::plugin_pref_get('OperBuddy_show_full_server_name') == 1) {
+		our $server			= substr $_[0][0], 1;
+	} else {
+		my @server_array	= split(/\./, substr $_[0][0], 1);
+		our $server			= $server_array[0];
+	}
 	my $message		= $_[1][3];
 	my $nick		= Xchat::get_info('nick');
 	if($me eq '*') {
 		if($message =~ /\*\*\* Notice \-\- Netsplit/i) {
 			Xchat::command("RECV :OpBud:Links!null\@null PRIVMSG ".$nick." :".$_[1][6]);
+			if(defined(Xchat::plugin_pref_get('OperBuddy_netsplit_audio_file'))) {
+				Xchat::command('SPLAY '.Xchat::plugin_pref_get('OperBuddy_netsplit_audio_file'));
+			}
 			Xchat::EAT_ALL;
 		} elsif($message =~ /split from/i) {
-			Xchat::command("RECV :OpBud:Links!null\@null PRIVMSG ".$nick." :".$_[1][6]);
+			Xchat::command("RECV :OpBud:Links!null\@null PRIVMSG ".$nick." :\00304".$_[1][6]."\003");
 			Xchat::command("GUI SHOW");
 			Xchat::command("GUI FOCUS");
-			sleep(1);
-			Xchat::command("GUI MSGBOX \"".$_[1][6]."\"");
+			#sleep(1);
+			#This has been getting rather annoying.
+			#Xchat::command("GUI MSGBOX \"".$_[1][6]."\"");
 			Xchat::EAT_ALL;
 		} elsif($message =~ /being introduced by/i) {
 			Xchat::command("RECV :OpBud:Links!null\@null PRIVMSG ".$nick." :".$_[1][6]);
@@ -167,8 +210,11 @@ sub operbuddy_snotice {
 		} elsif($message =~ /Netjoin/i) {
 			Xchat::command("RECV :OpBud:Links!null\@null PRIVMSG ".$nick." :".$_[1][6]);
 			Xchat::EAT_ALL;
-		} elsif($message =~ /\*\*\* Notice \-\- Client/i) {
-			Xchat::command("RECV :OpBud:Clients!null\@null PRIVMSG ".$nick." :".$_[1][8]);
+		} elsif($message =~ /\*\*\* Notice \-\- Client exiting/i) {
+			Xchat::command("RECV :OpBud:Clients!null\@null PRIVMSG ".$nick." :\00304".$_[1][8]."\003");
+			Xchat::EAT_ALL;
+		} elsif($message =~ /\*\*\* Notice \-\- Client connecting/i) {
+			Xchat::command("RECV :OpBud:Clients!null\@null PRIVMSG ".$nick." :\00303".$_[1][8]."\003");
 			Xchat::EAT_ALL;
 		} elsif($message =~ /Listed on DNSBL/i) {
 			Xchat::command("RECV :OpBud:Clients!null\@null PRIVMSG ".$nick." :".$_[1][6]);
@@ -188,7 +234,7 @@ sub stats_g {
 	my $reason		= $string[0];
 	my $setter		= $string[1];
 	Xchat::command("RECV :OpBud:Bans!null\@null PRIVMSG ".$nick." :\002Global K:Line for ".$username."\@".$ip."\002");
-	Xchat::command("RECV :OpBud:Bans!null\@null PRIVMSG ".$nick." :\t\t\t\t\002\Reason:\002\t".$reason);
+	Xchat::command("RECV :OpBud:Bans!null\@null PRIVMSG ".$nick." :\t\t\t\t\002Reason:\002\t".$reason);
 	Xchat::command("RECV :OpBud:Bans!null\@null PRIVMSG ".$nick." :\t\t\t\t\002Set By:\002\t".$setter);
 	Xchat::EAT_ALL;
 }
@@ -202,7 +248,7 @@ sub stats_k {
 	my $reason		= $string[0];
 	my $setter		= $string[1];	
 	Xchat::command("RECV :OpBud:Bans!null\@null PRIVMSG ".$nick." :\002Global K:Line for ".$username."\@".$ip."\002");
-	Xchat::command("RECV :OpBud:Bans!null\@null PRIVMSG ".$nick." :\t\t\t\t\002\Reason:\002\t".$reason);
+	Xchat::command("RECV :OpBud:Bans!null\@null PRIVMSG ".$nick." :\t\t\t\t\002Reason:\002\t".$reason);
 	Xchat::command("RECV :OpBud:Bans!null\@null PRIVMSG ".$nick." :\t\t\t\t\002Set By:\002\t".$setter);
 	Xchat::EAT_ALL;
 }
