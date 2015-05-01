@@ -1,3 +1,6 @@
+***THIS PLUGIN NO LONGER WORKS!***
+Unfortunately, Spotify updated their Windows client and no longer puts the song title in the title bar of the window, where this plugin grabs the now playing info from. 
+
 Spotify Now Playing plugin for HexChat
 ======================================
 
