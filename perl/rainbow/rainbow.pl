@@ -11,11 +11,11 @@ use warnings;
 use Xchat qw(:all);
 
 my $PLUGIN_NAME = 'rainbow';
-my $PLUGIN_VERS = '1.0';
+my $PLUGIN_VERS = '1.1';
 my $PLUGIN_DESC = 'rainbow-ifies your text';
 
-register($PLUGIN_NAME, $PLUGIN_VERS, $PLUGIN_DESC, \&on_load);
-Xchat::printf("Loading %s version %s", $PLUGIN_NAME, $PLUGIN_VERS);
+register($PLUGIN_NAME, $PLUGIN_VERS, $PLUGIN_DESC, \&on_unload);
+Xchat::printf("Loaded %s version %s", $PLUGIN_NAME, $PLUGIN_VERS);
 
 sub on_unload {
 	Xchat::printf("%s version %s unloaded.", $PLUGIN_NAME, $PLUGIN_VERS);
