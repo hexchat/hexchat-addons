@@ -12,7 +12,7 @@ use utf8;
 use Xchat qw(:all);
 
 my $PLUGIN_NAME = 'homoglyph';
-my $PLUGIN_VERS = '1.0';
+my $PLUGIN_VERS = '1.1';
 my $PLUGIN_DESC = 'converts characters into visually similar glyphs';
 
 my %GLYPHS = (
@@ -94,20 +94,22 @@ sub on_unload {
 hook_command('hg', \&homoglyphify, {help_text => "Usage: /hg <text> to homoglyphify the given text."});
 
 sub homoglyphify {
-	my $text = lc($_[1][1]);
-	my $result = '';
+	if (defined $_[1][1]) {
+		my $text = lc($_[1][1]);
+		my $result = '';
 
-	foreach (split //, $text) {
-		if (exists $GLYPHS{$_}) {
-			my @glyphs = @{$GLYPHS{$_}};
-			$result .= $glyphs[rand @glyphs];
+		foreach (split //, $text) {
+			if (exists $GLYPHS{$_}) {
+				my @glyphs = @{$GLYPHS{$_}};
+				$result .= $glyphs[rand @glyphs];
+			}
+			else {
+				$result .= $_;
+			}
 		}
-		else {
-			$result .= $_;
-		}
+
+		command("say $result");
 	}
-
-	command("say $result");
 
 	return EAT_ALL;
 }
