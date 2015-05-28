@@ -2,7 +2,7 @@
 
 ###Downloads
 
-Outdated Windows ownloads can be found here: https://dl.hexchat.net/addons/
+Outdated Windows downloads can be found here: https://dl.hexchat.net/addons/
 
 ###Installation
 
