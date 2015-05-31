@@ -5,3 +5,6 @@
 [submodule "c/javascript"]
 	path = c/javascript
 	url = https://github.com/TingPing/hexchat-javascript.git
+[submodule "c/hcspotify"]
+	path = c/hcspotify
+	url = https://github.com/rahatarmanahmed/hcspotify.git
