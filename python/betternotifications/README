@@ -1,0 +1,15 @@
+This script should make Windows 10 notifications look better than they do by default.
+In this script, highlighted messages take the format:
+
+Highlighted message from: sacarasc (#hexchat)
+<+sacarasc> I think you're cool, scriptuser!
+
+And channel actions are like this:
+
+Highlighted action from: sacarasc (#hexchat)
+* sacarasc hugs scriptuser.
+
+To use this, I believe you need Windows 10, as it won't work on previous.
+You will need HexChat 2.11.0+ too.
+
+Also, please turn off notifications in Settings -> Preferences -> Alerts for highlighted messages only. You can keep on the ones for private.
