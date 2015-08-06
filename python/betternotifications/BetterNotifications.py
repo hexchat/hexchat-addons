@@ -39,7 +39,10 @@ def message_cb(word, word_eol, userdata):
 
 	nickname = word[0]
 	message = word[1]
-	mode = word[2]
+	if len(word) > 2:
+		mode = word[2]
+	else:
+		mode = ''
 	channel = hexchat.get_info('channel')
 	header = '"Highlighted message from: {} ({})"'.format(nickname, channel)
 	mainjunk = '<{}{}> {}'.format(mode, nickname, message)
