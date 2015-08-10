@@ -132,7 +132,7 @@ sub message_print {
 # check to see if we have a "/ctcp|msg nickname xdcc send ..."
 # This sub will only be hooked when auto xdcc mode is set
 sub xdcc_request_watch {
-	if ($_[1][2] =~ /^xdcc send/i) {
+	if ($_[1][2] =~ /^xdcc send/i || $_[1][2] =~ /^xdcc batch/i) {
 		# the add command has been made smart enough to not replace permanent accepts
 		# however, check about verbose, and if time_frame !> 0, don't place -t flag
 		command(CMD_NICK.($CONF->{verbose} ? '' : ' -q').($CONF->{time_frame} ? ' -t' : '').' add '.$_[0][1]);
