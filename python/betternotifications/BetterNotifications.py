@@ -27,11 +27,16 @@ def action_cb(word, word_eol, userdata):
 	nickname = word[0]
 	action = word[1]
 	channel = hexchat.get_info('channel')
-	header = '"Highlighted action from: {} ({})"'.format(nickname, channel)
-	mainjunk = '* {} {}'.format(nickname, action)
-	fullthing = 'tray -b {} {}'.format(header, mainjunk)
+	network = hexchat.get_info('network')
 	
-	hexchat.command(fullthing)
+	if hexchat.get_context() == hexchat.find_context():
+		return hexchat.EAT_NONE
+	else:
+		header = '"Highlighted action from: {} ({}/{})"'.format(nickname, channel, network)
+		mainjunk = '* {} {}'.format(nickname, action)
+		fullthing = 'tray -b {} {}'.format(header, mainjunk)
+	
+		hexchat.command(fullthing)
 	
 	return hexchat.EAT_NONE
 
@@ -44,11 +49,16 @@ def message_cb(word, word_eol, userdata):
 	else:
 		mode = ''
 	channel = hexchat.get_info('channel')
-	header = '"Highlighted message from: {} ({})"'.format(nickname, channel)
-	mainjunk = '<{}{}> {}'.format(mode, nickname, message)
-	fullthing = 'tray -b {} {}'.format(header, mainjunk)
+	network = hexchat.get_info('network')
 	
-	hexchat.command(fullthing)
+	if hexchat.get_context() == hexchat.find_context():
+		return hexchat.EAT_NONE
+	else:
+		header = '"Highlighted message from: {} ({}/{]})"'.format(nickname, channel, network)
+		mainjunk = '<{}{}> {}'.format(mode, nickname, message)
+		fullthing = 'tray -b {} {}'.format(header, mainjunk)
+	
+		hexchat.command(fullthing)
 	
 	return hexchat.EAT_NONE
 	
