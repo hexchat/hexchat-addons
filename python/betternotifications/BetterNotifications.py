@@ -2,7 +2,7 @@ import hexchat
 
 __module_name__ = 'BetterNotifications'
 __module_author__ = 'sacarasc'
-__module_version__ = '0.0.2'
+__module_version__ = '0.0.4'
 __module_description__ = 'Make Win10 Notifications Look Better'
 
 # This script should make Windows 10 notifications look better than they do by default.
@@ -54,7 +54,7 @@ def message_cb(word, word_eol, userdata):
 	if hexchat.get_context() == hexchat.find_context():
 		return hexchat.EAT_NONE
 	else:
-		header = '"Highlighted message from: {} ({}/{]})"'.format(nickname, channel, network)
+		header = '"Highlighted message from: {} ({}/{})"'.format(nickname, channel, network)
 		mainjunk = '<{}{}> {}'.format(mode, nickname, message)
 		fullthing = 'tray -b {} {}'.format(header, mainjunk)
 	
