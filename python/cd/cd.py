@@ -1,6 +1,6 @@
 __module_name__ = "cd"
 __module_author__ = "mniip"
-__module_version__ = "0.0.2"
+__module_version__ = "0.0.3"
 __module_description__ = "operator helper capable of executing composable actions"
 
 """
@@ -280,7 +280,6 @@ class WhoisArg(Struct):
 
 def parseActions(channel, input):
     actions = []
-    whoises = {}
     for action in input.split(";"):
         action = action.lstrip()
         commands, args = re.match(r"^\s*([a-zA-Z+-=]*)(.*)$", action).groups()
@@ -313,15 +312,13 @@ def parseActions(channel, input):
                 if command[0] not in ["+", "-", "="]:
                     command = "+" + command
                 if whoiser != "":
-                    if (nick, forward) not in whoises:
-                        whoises[(nick, forward)] = WhoisArg(nick = nick, whoiser = whoiser, forward = forward)
-                    modeArg = whoises[(nick, forward)]
+                    modeArg = WhoisArg(nick = nick, whoiser = whoiser, forward = forward)
                 elif nick != "":
                     modeArg = nick + "$" + forward if forward else nick
                 else:
                     modeArg = None
                 ModeAction.append(actions, ModeAction(channel = channel, modes = [(command, modeArg)]))
-    return actions, whoises
+    return actions
 
 def renderActions(actions):
     ret = []
@@ -370,12 +367,18 @@ def command(w, we, u):
     channel = hexchat.get_info("channel")
     @Async
     def async(thread):
-        actions, whoises = parseActions(channel, we[1] if len(we) > 1 else "")
+        actions = parseActions(channel, we[1] if len(we) > 1 else "")
         log(0, "[" + channel + "] /" + cmd + " " + renderActions(actions))
         if cmd in ["cd", "d"]:
             ModeAction.append(actions, ModeAction(channel = channel, modes = [("-o", hexchat.get_info("nick"))]))
-        for m in whoises.values():
-            m.promise = WhoisPromise(thread, m.nick)
+        whoises = {}
+        for a in actions:
+            if isinstance(a, ModeAction):
+                for mode, arg in a.modes:
+                    if isinstance(arg, WhoisArg):
+                        if arg.nick not in whoises:
+                            whoises[arg.nick] = WhoisPromise(thread, arg.nick)
+                        arg.promise = whoises[arg.nick]
         if cmd in ["cd", "co"]:
             c = ChanServPromise(thread, channel)
             for y in c.wait(): yield y
