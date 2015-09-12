@@ -236,7 +236,7 @@ class ChanServPromise(Promise):
     def handlerNOTICE(w, we, u):
         source = w[0][1:].split("!", 1)[0]
         text = we[3]
-        if source == "ChanServ" and re.match(chanServFailure, text):
+        if source == "ChanServ" and re.search(chanServFailure, text):
             for p in ChanServPromise.promises:
                 p.fulfill(False)
             ChanServPromise.promises = []
