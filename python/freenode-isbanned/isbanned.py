@@ -1,6 +1,6 @@
 __module_name__ = "isbanned"
 __module_author__ = "mniip"
-__module_version__ = "0.6"
+__module_version__ = "0.7"
 __module_description__ = "freenode-specific module that checks whether someone is banned on some channel"
 
 """
@@ -227,7 +227,7 @@ def analyze():
                 if not found:
                     try:
                         ip, width = bhost.rsplit("/", 1)
-                        width = int(width)
+                        width = int("0" + re.match("[0-9]*", width).group(0))
                         if width > 0:
                             is_v4 = ip.find(":") == -1
                             width = max((32 if is_v4 else 128) - width, 0)
