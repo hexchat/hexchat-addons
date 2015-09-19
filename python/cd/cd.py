@@ -1,6 +1,6 @@
 __module_name__ = "cd"
 __module_author__ = "mniip"
-__module_version__ = "0.0.3"
+__module_version__ = "0.0.4"
 __module_description__ = "operator helper capable of executing composable actions"
 
 """
@@ -198,7 +198,8 @@ class WhoisPromise(Promise):
 
     @staticmethod
     def handler330(w, we, u):
-        WhoisPromise.lastWhois.account = w[4]
+        if WhoisPromise.lastWhois:
+            WhoisPromise.lastWhois.account = w[4]
 
     @staticmethod
     def handler318(w, we, u):
@@ -221,16 +222,17 @@ class ChanServPromise(Promise):
         source = w[0][1:].split("!", 1)[0]
         if source == "ChanServ":
             mode = w[3]
-            nick = w[4]
-            if mode == "+o" and hexchat.nickcmp(nick, hexchat.get_info("nick")) == 0:
-                channel = w[2]
-                def filt(p):
-                    if hexchat.nickcmp(p.channel, channel) == 0:
-                        p.fulfill(True)
-                        return False
-                    else:
-                        return True
-                ChanServPromise.promises = filter(filt, ChanServPromise.promises)
+            if mode == "+o":
+                nick = w[4]
+                if hexchat.nickcmp(nick, hexchat.get_info("nick")) == 0:
+                    channel = w[2]
+                    def filt(p):
+                        if hexchat.nickcmp(p.channel, channel) == 0:
+                            p.fulfill(True)
+                            return False
+                        else:
+                            return True
+                    ChanServPromise.promises = filter(filt, ChanServPromise.promises)
 
     @staticmethod
     def handlerNOTICE(w, we, u):
