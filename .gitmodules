@@ -8,3 +8,6 @@
 [submodule "c/hcspotify"]
 	path = c/hcspotify
 	url = https://github.com/rahatarmanahmed/hcspotify.git
+[submodule "c/lua"]
+	path = c/lua
+	url = https://github.com/mniip/hexchat-lua.git
