@@ -1,160 +1,96 @@
---
--- $Id$
--- $Revision$
--- $Date$
---
 local name = "alias.lua"
 local desc = "Create aliases"
 local version = "0.1"
 
-local help_alias   = "Usage: /ALIAS NEWCMD COMMAND[; COMMAND2[;...]], "
-                    .. "adds NEWCMD as alias for COMMAND[; COMMAND2[;...]] "
-                    .. "... multiple commands are separated by ';'"
+hexchat.register(name, version, desc)
+
+local help_alias = "Usage: /ALIAS NEWCMD COMMAND[; COMMAND2[;...]], adds NEWCMD as alias for COMMAND[; COMMAND2[;...]] ... multiple commands are separated by ';'"
 local help_unalias = "Usage: /UNALIAS NEWCMD, removes NEWCMD from aliases"
 local help_aliases = "Usage: /ALIASES, shows the currently defined aliases"
-aliases = {}
 
-function xchat_register() 
-    return name, desc, version
+local hooks = {}
+
+local function cmd_unalias(word, eol, data)
+	if not word[2] then
+		hexchat.print(help_unalias)
+		return hexchat.EAT_HEXCHAT
+	end
+	local name = word[2]:upper()
+	if hooks[name] then
+		hooks[name]:unhook()
+		hooks[name] = nil
+		hexchat.pluginprefs[name] = nil
+	end
+	return hexchat.EAT_HEXCHAT
 end
 
-function xchat_init()
-    xchat.hook_command("ALIAS", "cmd_alias", xchat.PRI_NORM, help_alias)
-    xchat.hook_command("UNALIAS", "cmd_unalias", xchat.PRI_NORM, help_unalias)
-    xchat.hook_command("ALIASES", "cmd_aliases", xchat.PRI_NORM, help_aliases)
-    xchat.commandf("LOAD -e %s/alias.cfg", xchat.get_info("xchatdirfs"))
+local function cmd_aliases(word, eol, data)
+	hexchat.print(("%-20s: %s"):format("Alias", "Commands"))
+	hexchat.print("----------------------------------------------------------------")
+	for name, cmd in pairs(hexchat.pluginprefs) do
+		hexchat.print(("%-20s: %s"):format(name, cmd))
+	end
+	return hexchat.EAT_HEXCHAT
 end
 
-function xchat_unload()
-    local file = io.open(
-            string.format("%s/alias.cfg", xchat.get_info("xchatdirfs")), 
-            "w"
-        )
-    if not file then
-        return
-    end
-    table.foreach(aliases,
-        function(cmd, value)
-            file:write(
-                string.format("ALIAS %s %s\n", 
-                    cmd,  
-                    string.gsub(
-                            table.concat(value, "; "), "%\\%\"", "\"")
-                )
-            )
-        end
-    )
-    file:flush()
-    file:close()
+local function hook(name, cmd)
+	local function callback(word, eol, data)
+		for subcmd in cmd:gmatch"%s*([^;%s][^;]*)" do
+			subcmd = subcmd:gsub("%%(%w)", function(v)
+				if v == "a" then
+					local users = {}
+					for user in hexchat.iterate"users" do
+						if user.selected > 0 then
+							table.insert(users, user.nick)
+						end
+					end
+					return table.concat(users, " ")
+				elseif v == "c" then
+					return hexchat.get_info"channel" or ""
+				elseif v == "e" then
+					return hexchat.get_info"network" or ""
+				elseif v == "n" then
+					return hexchat.get_info"nick" or ""
+				elseif v == "t" then
+					return os.date()
+				elseif v == "v" then
+					return hexchat.get_info"version" or ""
+				end
+			end)
+			subcmd = subcmd:gsub("%%(&?)(%d+)", function(a, v)
+				if a == "&" and tonumber(v) then
+					return eol[tonumber(v) + 1] or ""
+				elseif a == "" and tonumber(v) then
+					return word[tonumber(v) + 1] or ""
+				end
+			end)
+			hexchat.command(subcmd)
+		end
+		return hexchat.EAT_ALL
+	end
+	if hooks[name] then
+		hooks[name]:unhook()
+	end
+	hooks[name] = hexchat.hook_command(name, callback)
+	hexchat.pluginprefs[name] = cmd
 end
 
-function cmd_unalias(word, eol, data)
-    if word[2] == nil then
-        xchat.print(help_unalias)
-        return xchat.EAT_XCHAT
-    end
-    local cmd = string.upper(word[2])
-    aliases[cmd] = nil
-    xchat.unhook(cmd)
-    return xchat.EAT_XCHAT
+local function cmd_alias(word, eol, data)
+	if word[2] == nil or word[3] == nil then
+		hexchat.print(help_alias)
+		return hexchat.EAT_HEXCHAT
+	end
+	local name = word[2]:upper()
+	local cmd = eol[3]
+	hook(name, cmd)
+	return hexchat.EAT_HEXCHAT
 end
 
-function cmd_aliases(word, eol, data)
-    xchat.printf("%-20s: %s", "Alias", "Commands");
-    xchat.printf("----------------------------------------------------------------")
-    table.foreach(aliases,
-        function(name, cmd)
-            xchat.printf("%-20s: %s", name, table.concat(cmd, "; "))
-        end
-    )
-    return xchat.EAT_XCHAT
+for k, v in pairs(hexchat.pluginprefs) do
+	hook(k, v)
 end
 
-replace = {
-    a = function()
-        local users = {}
-        local ulist = xchat.list_get("users")
-        if ulist == nil then
-            return ""
-        end
-        table.foreach(ulist,
-            function(i, list)
-                if list.selected > 0 then
-                    table.insert(users, list.nick)
-                end
-            end
-        )
-        return table.concat(users, " ")
-    end,
-    c = function()
-        local chan = xchat.get_info("channel") or ""
-        return chan
-    end,
-    e = function()
-        local net = xchat.get_info("network") or ""
-        return net
-    end,
-    n = function() 
-        local nick = xchat.get_info("nick") or ""
-        return nick
-    end,
-    t = function()
-        return os.date()
-    end,
-    v = function() 
-        local version = xchat.get_info("version") or ""
-        return version
-    end,
-}
+hexchat.hook_command("ALIAS", cmd_alias, help_alias)
+hexchat.hook_command("UNALIAS", cmd_unalias, help_unalias)
+hexchat.hook_command("ALIASES", cmd_aliases, help_aliases)
 
-
-function cmd_alias(word, eol, data)
-    if word[2] == nil or word[3] == nil then
-        xchat.print(help_alias)
-        return xchat.EAT_XCHAT
-    end
-    local new_cmd = string.upper(word[2])
-    -- ok, now we have at least a new command name (word[2]) and a command 
-    -- (eol[3])...
-    local subcmd = {}
-    local start  = 1
-    local matchall = string.gfind
-    if matchall == nil then -- lua 5.0 / 5.1 compat ...
-        matchall = string.gmatch
-    end
-    for cmd in matchall(eol[3], "([^%;]+)") do
-        cmd = string.gsub(cmd, "^%s+(.*)$", "%1")
-        table.insert(subcmd, cmd)
-    end
-    local eval = string.format(
-"function alias_%s(word, eol, data)\
-  local r = replace\
-  table.foreach(data,\
-     function(i, cmd)\
-         cmd = string.gsub(cmd, \"%%%%(%%d+)\", function (v)\
-                         return word[tonumber(v)]\
-                    end\
-              )\
-         cmd = string.gsub(cmd, \"%%&(%%d+)\", function (v) \
-                        return eol[tonumber(v)]\
-                    end\
-             )\
-         cmd = string.gsub(cmd, \"%%%%(%w)\", function (v) \
-                        if type(r[v] == \"function\" then\
-                            return r[v]()\
-                        else\
-                            return \"%%\"..v
-                        end\
-                    end\
-            )\
-         xchat.command(cmd)\
-     end\
-  )\
-  return xchat.EAT_ALL\
-end\n", new_cmd)
-    assert(loadstring(eval, string.format("alias_%s", new_cmd)))()
-    xchat.hook_command(new_cmd, string.format("alias_%s", new_cmd), 
-                        xchat.PRI_NORM,nil, subcmd)
-    aliases[new_cmd] = subcmd
-    return xchat.EAT_XCHAT
-end
