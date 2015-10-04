@@ -1,107 +1,70 @@
---
--- $Id$
---
-function xchat_register()
-    return "clones.lua", "clones detection / scanning", "0.2"
+hexchat.register("clones.lua", "0.2", "clones detection / scanning")
+
+local function cmd_clones(word, eol, data)
+	local ctx
+	local chan
+	if word[2] then
+		chan = word[2]
+		ctx = hexchat.find_context(nil, word[2])
+		if not ctx then
+			hexchat.print("No channel named '" .. chan .. "'")
+			return hexchat.EAT_ALL
+		end
+	else
+		chan = hexchat.get_info"channel"
+		ctx = hexchat.get_context()
+	end
+
+	local hosts = {}
+	for user in ctx:iterate"users" do
+		if user.host then
+			local host = user.host:match"@(.*)"
+			if host then
+				host = host:lower()
+				if not hosts[host] then
+					hosts[host] = {}
+				end
+				table.insert(hosts[host], user.nick)
+			end
+		end
+	end
+
+	local found = false
+
+	for host, nicks in pairs(hosts) do
+		if #nicks > 1 then
+			hexchat.print("CLONES on " .. chan .. ": " .. table.concat(nicks, ", ") .. " (*!*@" .. host .. ")")
+			found = true
+		end
+	end
+	if not found then
+		hexchat.print("CLONES: no clones on " .. chan)
+	end
+	return hexchat.EAT_ALL
 end
 
-function xchat_init()
-    xchat.hook_server("JOIN", "handle_join")
-    xchat.hook_command("CLONES", "cmd_clones", xchat.PRI_NORM, 
-                                "find clones on (current) channel")
+local function parse_user(str)
+	-- :Vetinari!vetinari@palace.ankh-morp.org JOIN #hexchat
+	local nick, user, host = str:match":([^!]*)!([^@]*)@(.*)"
+	return nick, user, host:lower()
 end
 
-function cmd_clones(word, eol, data)
-    local chan
-    if word[2] ~= nil then
-        chan = word[2]
-        local ctx = xchat.find_context(nil, word[2])
-        if ctx ~= nil then
-            xchat.set_context(ctx)
-        end
-    else
-        chan = xchat.get_info("channel")
-    end
+local function handle_join(word, eol, data)
+	local nick, user, host = parse_user(word[1])
+	local channel = word[3]:gsub("^:", "")
+	local network = hexchat.get_info"network" or "*unknown*"
 
-    local users = xchat.list_get("users")
-    if users == nil or chan == nil then
-        return xchat.EAT_XCHAT
-    end
-
-    local hosts = {}
-    table.foreach(users,
-        function(i, list)
-            if list.host ~= nil then
-                local host = string.find(list.host, "@", 1, true)
-                if host ~= nil then
-                    host = string.sub(list.host, host + 1)
-                    if hosts[host] == nil then
-                        hosts[host] = {list.nick}
-                    else
-                        table.insert(hosts[host], list.nick)
-                    end
-                end
-            end
-        end
-    )
-    xchat.set_context(xchat.find_context(nil, nil))
-    local found = false
-    table.foreach(hosts,
-        function(host, list)
-            if table.getn(list) > 1 then
-                xchat.printf("CLONES on %s: %s (*!*@%s)", 
-                        chan, table.concat(list, ", "), host)
-                found = true
-            end
-        end
-    )
-    if not found then
-        xchat.printf("CLONES: no clones on %s", chan)
-    end
-    return xchat.EAT_XCHAT
+	local server = hexchat.get_info"server"
+	for user in hexchat.iterate"users" do
+		if user.host then
+			local h = user.host:match"@(.*)"
+			if h and h:lower() == host then
+				hexchat.find_context(nil, nil):print("\00320CLONES on " .. channel .. " @ " .. network .. ": " .. user.nick .. ", " .. nick .. " (*!*@" .. host .. ")")
+			end
+		end
+	end
+	return hexchat.EAT_NONE
 end
 
-function parse_user(str)
-    -- :Vetinari!vetinari@palace.ankh-morp.org JOIN #xchat
-    local exclam = string.find(str, "!", 3, true)
-    local at     = string.find(str, "@", 5, true)
-    local nick   = string.sub(str,          2, exclam - 1)
-    local user   = string.sub(str, exclam + 1, at - 1)
-    local host   = string.sub(str,     at + 1)
-    return nick, user, string.lower(host)
-end
-
-function handle_join(word, eol, data)
-    local users   = xchat.list_get("users")
-    local server  = xchat.get_info("server")
-    if server == nil or users == nil then
-        return xchat.EAT_NONE
-    end
-
-    local nick,user,host = parse_user(word[1])
-    local channel = string.lower(word[3])
-    if string.find(channel, ":", 1, true) == 1 then
-        channel = string.sub(channel, 2)
-    end
-    -- hmpfz... this is the network name from server list?!
-    local network = xchat.get_info("network") or "*unknown*"
-
-    xchat.set_context(xchat.find_context(xchat.get_info("network"), channel))
-    table.foreach(users,
-        function(i, list) 
-            if list.host ~= nil then
-                local h = string.find(list.host, "@", 1, true)
-                if h == nil then
-                    return nil
-                end
-                h = string.sub(list.host, h + 1)
-                if string.lower(h) == host then
-                    xchat.printf("%s20CLONES on %s @ %s: %s, %s: *!*@%s", 
-                            "\3", channel, network, list.nick, nick, host)
-                    return true
-                end
-            end
-        end
-    )
-    return xchat.EAT_NONE
-end
+hexchat.hook_server("JOIN", handle_join)
+hexchat.hook_command("CLONES", cmd_clones, "find clones on (current) channel")
