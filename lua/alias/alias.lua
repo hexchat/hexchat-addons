@@ -10,7 +10,7 @@ local help_aliases = "Usage: /ALIASES, shows the currently defined aliases"
 
 local hooks = {}
 
-local function cmd_unalias(word, eol, data)
+local function cmd_unalias(word, eol)
 	if not word[2] then
 		hexchat.print(help_unalias)
 		return hexchat.EAT_HEXCHAT
@@ -24,7 +24,7 @@ local function cmd_unalias(word, eol, data)
 	return hexchat.EAT_HEXCHAT
 end
 
-local function cmd_aliases(word, eol, data)
+local function cmd_aliases(word, eol)
 	hexchat.print(("%-20s: %s"):format("Alias", "Commands"))
 	hexchat.print("----------------------------------------------------------------")
 	for name, cmd in pairs(hexchat.pluginprefs) do
@@ -34,7 +34,7 @@ local function cmd_aliases(word, eol, data)
 end
 
 local function hook(name, cmd)
-	local function callback(word, eol, data)
+	local function callback(word, eol)
 		for subcmd in cmd:gmatch"%s*([^;%s][^;]*)" do
 			subcmd = subcmd:gsub("%%(%w)", function(v)
 				if v == "a" then
@@ -75,7 +75,7 @@ local function hook(name, cmd)
 	hexchat.pluginprefs[name] = cmd
 end
 
-local function cmd_alias(word, eol, data)
+local function cmd_alias(word, eol)
 	if word[2] == nil or word[3] == nil then
 		hexchat.print(help_alias)
 		return hexchat.EAT_HEXCHAT

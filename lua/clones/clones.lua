@@ -1,6 +1,6 @@
 hexchat.register("clones.lua", "0.2", "clones detection / scanning")
 
-local function cmd_clones(word, eol, data)
+local function cmd_clones(word, eol)
 	local ctx
 	local chan
 	if word[2] then
@@ -45,11 +45,11 @@ end
 
 local function parse_user(str)
 	-- :Vetinari!vetinari@palace.ankh-morp.org JOIN #hexchat
-	local nick, user, host = str:match":([^!]*)!([^@]*)@(.*)"
+	local nick, user, host = str:match"^:([^!]*)!([^@]*)@(.*)$"
 	return nick, user, host:lower()
 end
 
-local function handle_join(word, eol, data)
+local function handle_join(word, eol)
 	local nick, user, host = parse_user(word[1])
 	local channel = word[3]:gsub("^:", "")
 	local network = hexchat.get_info"network" or "*unknown*"

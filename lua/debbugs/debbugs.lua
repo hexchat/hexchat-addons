@@ -6,8 +6,8 @@ local function unload()
 	hexchat.command("MENU DEL \"$CHAN/Debian Bug #\"")
 end
 
-local function cmd_debbug(word, eol, data)
-	local bug = word[2]:match"#(%d+)$"
+local function cmd_debbug(word, eol)
+	local bug = word[2]:match"^#(%d+)$"
 	if bug then
 		hexchat.command("URL http://bugs.debian.org/" .. tonumber(bug))
 	end

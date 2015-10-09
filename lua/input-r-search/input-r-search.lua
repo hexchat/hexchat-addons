@@ -27,7 +27,7 @@ local function print_setting(name)
 	hexchat.print(key .. "\00302" .. ("."):rep(29 - #key) .. "\00303:\015 " .. hexchat.pluginprefs[name])
 end
 
-local function cmd_set(word, eol, data)
+local function cmd_set(word, eol)
 	if not word[3] then
 		if not word[2] then
 			print_setting"size"
@@ -59,7 +59,7 @@ local function cmd_set(word, eol, data)
 	return hexchat.EAT_NONE
 end
 
-function check_key(word, data)
+function check_key(word)
 	local key_value = tonumber(word[1])
 
 	if key_value == 65307 or (key_value == 99 and math.floor(word[2] / 4) % 2 == 1) then -- <Esc>, <C-C>

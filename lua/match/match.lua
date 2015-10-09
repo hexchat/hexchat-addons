@@ -16,7 +16,7 @@ local function irc2lua(str)
 	end)
 end
 
-local function cmd_match(word, eol, data)
+local function cmd_match(word, eol)
 	local pattern
 	local lua
 	if word[2] == "-l" then
