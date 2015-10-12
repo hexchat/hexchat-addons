@@ -110,8 +110,12 @@ function check_key(word)
 		if not running then
 			return hexchat.EAT_NONE
 		end
-		if tonumber(word[4]) ~= 0 then
-			search = search .. word[3] or ""
+		if tonumber(word[4]) ~= 0 or key_value == 65288 then -- key or <Esc>
+			if key_value == 65288 then
+				search = search:sub(1, -2)
+			else
+				search = search .. word[3] or ""
+			end
 			match = nil
 			for _, line in pairs(history) do
 				if line:find(search, 1, true) then
