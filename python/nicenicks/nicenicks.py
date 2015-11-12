@@ -1,6 +1,6 @@
 #################################################################
 ## Nice Nicks, version <whatever it says down there>
-## by Chris Gahan (chris@ill-logic.com)
+## by Chris Gahan (chris@ill-logic.com), licensed under the WTFPL version 2.
 ##
 ## What is this?
 ##   This is an X-Chat script written in python which colourizes all the nicks in a channel.
