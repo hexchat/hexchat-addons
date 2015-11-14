@@ -22,8 +22,6 @@
 ##     give them the same colours.
 ##   + Could also do this when we see two users' nicks occurring close together very frequently
 ##     over time, making them easier to differentiate in a conversation.
-##   * Channel tables are currently universal in the whole client, not differentiating between
-##     channels of the same name on different servers.
 ##   + Another idea for doing nick colouring is to assign more than one colour to a nick which has
 ##     more than one recognisable part. For example, "JoeBloggs17" could have "Joe",
 ##     "Bloggs", and "17" coloured differently to each other - for more uniqueness.
