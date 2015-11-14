@@ -294,7 +294,7 @@ def message_callback(word, word_eol, userdata):
         newnick = ecs('o') + col(color) + nick
         word[0] = newnick
         hexchat.emit_print(event_name, *word)
-        return hexchat.EAT_HEXCHAT
+        return hexchat.EAT_ALL
     else:
         return hexchat.EAT_NONE
 
@@ -306,8 +306,8 @@ try:
 except:
     pass
 
-hexchat.hook_print("Channel Message", message_callback, "Channel Message")
-hexchat.hook_print("Channel Action", message_callback, "Channel Action")
+hexchat.hook_print("Channel Message", message_callback, "Channel Message", priority=hexchat.PRI_HIGHEST)
+hexchat.hook_print("Channel Action", message_callback, "Channel Action", priority=hexchat.PRI_HIGHEST)
 
 hexchat.hook_command("NICENICKS", nicenicks_command, None, hexchat.PRI_NORM, "NICENICKS INFO:\t\nThis script will colourize nicks of users automatically, using a 'least-recently-used' algorithm (to avoid two people having the same colour).\n\nFriends' nicks can be assigned a specific colour with the SETCOLOR command, a list of colors can be shown with the COLORTABLE command, and this script can be enabled/disabled with the NICENICKS command (/NICENICKS on or /NICENICKS off).\n\nAlso, for fun, try '/NICENICKS_DUMP', or '/NICEDEBUG on'")
 hexchat.hook_command("NICEDEBUG", nicedebug_command, None, hexchat.PRI_NORM, "Usage:\t/NICEDEBUG On to enable, /NICEDEBUG Off to disable.")
