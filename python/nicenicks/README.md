@@ -1,7 +1,7 @@
 nicenicks
 ============
 
-Hexchat script which colourizes all the nicks in a channel. It's different from the built-in colouring system because that one frqeuently assigns two people in a channel the same colour when there are still MANY unused colours.
+Hexchat script which colourizes all the nicks in a channel. It's different from the built-in colouring system because that one freqeuently assigns two people in a channel the same colour when there are still MANY unused colours.
 
 The nicks in the events called "Channel Message" and "Channel Action" will be recoloured by this script.
 
