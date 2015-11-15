@@ -320,4 +320,4 @@ hexchat.hook_command("SETCOLOR", setcolor_command, None, hexchat.PRI_NORM, "Usag
 hexchat.hook_command("COLORTABLE", color_table_command)
 hexchat.hook_command("NICENICKS_DUMP", nicenicks_dump_command, None, hexchat.PRI_NORM, "Usage:\t/NICENICKS_DUMP to dump all the nick colours for all active channels")
 
-omsg("Nicenicks loaded!")
+omsg("Nicenicks version {} loaded!".format(__module_version__))
