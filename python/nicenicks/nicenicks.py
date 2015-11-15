@@ -26,6 +26,9 @@
 ##   + Another idea for doing nick colouring is to assign more than one colour to a nick which has
 ##     more than one recognisable part. For example, "JoeBloggs17" could have "Joe",
 ##     "Bloggs", and "17" coloured differently to each other - for more uniqueness.
+##   + XChat compatibility. Currently when trying to port this script back to XChat, strange
+##     behaviour was encountered where a caught event would be treated normally anyway, even
+##     though our callback returned EAT_XCHAT or EAT_ALL. I don't know how to solve that.
 
 from __future__ import print_function
 
