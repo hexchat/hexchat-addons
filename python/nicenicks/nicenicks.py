@@ -120,17 +120,27 @@ def get_color(ctable, nick):
     for i in range(len(ctable)-1,-1,-1):
         c, n = ctable[i]
         
-        if pcolor != None and c == pcolor: # if this nick has a permacolor
+        if pcolor != None and c == pcolor: # if we found this nick's permcolor
             # steal the color from whoever's using it
             ctable.pop(i)
             ctable.append((c, nick))
+            dmsg("1: " + str(c) + " " + nick)
             return c
             
         elif n == nick:
-            # push nick to top of stack if it's in there
             color = c
-            ctable.append(ctable.pop(i))
-            break
+            if c != pcolor: # if this nick has a color in the table different from its permacolor
+                # change the color in the color table
+                ctable.pop(i)
+                c = color = pcolor
+                ctable.append((c, nick))
+                dmsg("2.1: " + str(c) + " " + nick)
+                break
+            else:
+                # push nick to top of stack if it's in there
+                dmsg("2.2: " + str(c) + " " + nick)
+                ctable.append(ctable.pop(i))
+                break
 
     if color == None:
         # otherwise, add a new entry
@@ -138,7 +148,8 @@ def get_color(ctable, nick):
         n = nick
         ctable.append((c,n))
         color = c
-
+        dmsg("3: " + str(c) + " " + nick)
+    dmsg("4: " + str(color))
     return color
     
 
