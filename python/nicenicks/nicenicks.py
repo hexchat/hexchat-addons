@@ -132,13 +132,13 @@ def get_color(ctable, nick):
             if c != pcolor: # if this nick has a color in the table different from its permacolor
                 # change the color in the color table
                 ctable.pop(i)
+                dmsg(nick + "'s permacolor was found to be different from the one in the table, and was reassigned from " + str(c) + " to " + str(pcolor), "GETCOLOR")
                 c = color = pcolor
                 ctable.append((c, nick))
-                dmsg("2.1: " + str(c) + " " + nick)
                 break
             else:
                 # push nick to top of stack if it's in there
-                dmsg("2.2: " + str(c) + " " + nick)
+                dmsg(nick + "'s color was found in the colortable for this channel.", "GETCOLOR")
                 ctable.append(ctable.pop(i))
                 break
 
@@ -148,8 +148,8 @@ def get_color(ctable, nick):
         n = nick
         ctable.append((c,n))
         color = c
-        dmsg("3: " + str(c) + " " + nick)
-    dmsg("4: " + str(color))
+        dmsg("A new entry was added to this colortable: " + nick + " -> " + str(c), "GETCOLOR")
+    dmsg("Resultant color: " + str(color), "GETCOLOR")
     return color
     
 
