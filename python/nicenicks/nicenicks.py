@@ -129,7 +129,7 @@ def get_color(ctable, nick):
             
         elif n == nick:
             color = c
-            if c != pcolor: # if this nick has a color in the table different from its permacolor
+            if pcolor != None and c != pcolor: # if this nick has a color in the table different from its permacolor
                 # change the color in the color table
                 ctable.pop(i)
                 dmsg(nick + "'s permacolor was found to be different from the one in the table, and was reassigned from " + str(c) + " to " + str(pcolor), "GETCOLOR")
