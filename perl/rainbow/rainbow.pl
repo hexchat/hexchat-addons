@@ -11,7 +11,7 @@ use warnings;
 use Xchat qw(:all);
 
 my $PLUGIN_NAME = 'rainbow';
-my $PLUGIN_VERS = '1.1';
+my $PLUGIN_VERS = '1.2';
 my $PLUGIN_DESC = 'rainbow-ifies your text';
 
 register($PLUGIN_NAME, $PLUGIN_VERS, $PLUGIN_DESC, \&on_unload);
@@ -27,7 +27,7 @@ sub rainbowify {
 	my $text = $_[1][1];
 
 	if (defined $text) {
-		$text =~ s/(.)/"\cC" . (int(rand(14))+2) . "\cB\cB$1"/eg;
+		$text =~ s/(.)/"\cC" . (int(rand(14))+2) . "$1"/eg;
 		command("say $text");
 	}
 
