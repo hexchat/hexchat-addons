@@ -1,6 +1,6 @@
 __module_name__ = "cd"
 __module_author__ = "mniip"
-__module_version__ = "0.0.4"
+__module_version__ = "0.0.5"
 __module_description__ = "operator helper capable of executing composable actions"
 
 """
@@ -90,7 +90,7 @@ __module_description__ = "operator helper capable of executing composable action
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-defaultKickReason = "Your behavior is not conducive to the desired environment."
+defaultKickReason = "Your behavior is not conductive to the desired environment."
 modesPerLine = 4
 logLevel = 1
 logPrefixes = ["\x0302(==) ", "\x0303(**) ", "\x0304(EE) "]
@@ -188,7 +188,7 @@ class WhoisPromise(Promise):
                 return False
             else:
                 return True
-        WhoisPromise.promises = filter(filt, WhoisPromise.promises)
+        WhoisPromise.promises = list(filter(filt, WhoisPromise.promises))
 
     lastWhois = None
 
@@ -232,7 +232,7 @@ class ChanServPromise(Promise):
                             return False
                         else:
                             return True
-                    ChanServPromise.promises = filter(filt, ChanServPromise.promises)
+                    ChanServPromise.promises = list(filter(filt, ChanServPromise.promises))
 
     @staticmethod
     def handlerNOTICE(w, we, u):
