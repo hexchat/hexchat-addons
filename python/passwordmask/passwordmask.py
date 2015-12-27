@@ -3,16 +3,16 @@ __module_version__ = "0.0.1"
 __module_description__ = "mask passwords in the inputbox"
 __module_author__ = "mniip"
 
-# The below regexes determine what counts as a common containing a password.
+# The below regexes determine what counts as a command containing a password.
 # Regexes are checked in the given order. In case of a match, the regex should
 # include exactly one capture (named or unnamed) containing the password.
 # Location of the capture will be used to mask the original command.
 patterns = [
-        r"^/(?:msg\s+nickserv|ns)\s+(?:(?:identify|id|(?:ghost|release|regain|recover|set\s+password|group)\s+\S+|setpass\s+\S+\s+\S+)\s+(.*)|register\s+(.*)\s+.*)$",
-        r"^/(?:msg\s+chanserv|cs)\s+(?:(?:identify|set\s+password)\s+(.*)|register\s+\S+\s+(\S+).*)$",
-        r"^/pass\s+(.*)$",
-        r"^/oper\s+\S+\s+(.*)$",
-        r"^/(?:msg\s+operserv|os)\s+(?:identify|id)\s+(.*)$"
+        r"^/(?:msg\s+nickserv|(?:quote\s+)?ns)\s+(?:(?:identify|id|(?:ghost|release|regain|recover|set\s+password|group)\s+\S+|setpass\s+\S+\s+\S+)\s+(.*)|register\s+(.*)\s+.*)$",
+        r"^/(?:msg\s+chanserv|(?:quote\s+)?cs)\s+(?:(?:identify|set\s+password)\s+(.*)|register\s+\S+\s+(\S+).*)$",
+        r"^/(?:quote\s+)?pass\s+(.*)$",
+        r"^/(?:quote\s+)?oper\s+\S+\s+(.*)$",
+        r"^/(?:msg\s+operserv|(?:quote\s+)?os)\s+(?:identify|id)\s+(.*)$"
     ]
 placeholder = '*'
 
