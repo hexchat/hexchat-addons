@@ -1,6 +1,6 @@
 __module_name__ = "cd"
 __module_author__ = "mniip"
-__module_version__ = "0.0.5"
+__module_version__ = "0.0.6"
 __module_description__ = "operator helper capable of executing composable actions"
 
 """
@@ -19,6 +19,8 @@ __module_description__ = "operator helper capable of executing composable action
         /cd_flush
             In case of someting breaking, this is the command that aborts
             everything.
+        /cd_status
+            Print events the script is currently waiting for.
 
     Action syntax:
         An action is either a mode (plus or minus followed by a letter), or the
@@ -54,7 +56,8 @@ __module_description__ = "operator helper capable of executing composable action
 
         The syntax is whitespace-permissive, with the only exception being that
         when multiple actions reuse the same argument, they should be 'glued'
-        into one word to avoid ambiguities. As such, the following commands are         the same:
+        into one word to avoid ambiguities. As such, the following commands are
+        the same:
             /o +bk@user$#redirect Reason;+q!user
             /o +bk @ user $ #redirect Reason ; +q ! user
 
@@ -116,7 +119,7 @@ def log(level, string):
         context.prnt(time.strftime("[%H:%M:%S] ", t) + entry)
 log(1, __module_name__ + " " + __module_version__ + " initialising")
 
-def commandLog(w, we, u):
+def commandLog():
     context = hexchat.find_context(channel = logTab)
     if context:
         context.command("clear")
@@ -131,9 +134,18 @@ def commandLog(w, we, u):
         context.prnt(time.strftime("[%H:%M:%S] ", t) + entry)
     return hexchat.EAT_ALL
 
-def sendCommand(command):
-    log(0, "quote " + command)
-    hexchat.command("quote " + command)
+def netId(ctx = None):
+    if ctx == None:
+        return hexchat.get_prefs("id")
+    else:
+        for c in hexchat.get_list("channels"):
+            if c.context == ctx:
+                return c.id
+        return "?"
+
+def sendCommand(ctx, command):
+    log(0, "[" + str(netId(ctx)) + "] quote " + command)
+    ctx.command("quote " + command)
 
 class Async:
     def __init__(self, target):
@@ -173,49 +185,53 @@ class Whois(Struct): pass
 
 class WhoisPromise(Promise):
     promises = []
-    def __init__(self, thread, nick):
+    def __init__(self, thread, ctx, nick):
             Promise.__init__(self, thread)
+            self.ctx = ctx
             self.nick = nick
             WhoisPromise.promises.append(self)
-            sendCommand("WHOIS :" + self.nick)
+            sendCommand(ctx, "WHOIS :" + self.nick)
 
     @staticmethod
-    def propose(whois):
+    def propose(id, whois):
         def filt(p):
-            if hexchat.nickcmp(p.nick, whois.nick) == 0:
-                log(0, "Received WHOIS for " + p.nick)
+            if hexchat.nickcmp(p.nick, whois.nick) == 0 and netId(p.ctx) == id:
+                log(0, "[" + str(id) + "] Received WHOIS for " + p.nick)
                 p.fulfill(whois)
                 return False
             else:
                 return True
         WhoisPromise.promises = list(filter(filt, WhoisPromise.promises))
 
-    lastWhois = None
+    lastWhois = {}
 
     @staticmethod
     def handler311(w, we, u):
-        WhoisPromise.lastWhois = Whois(nick = w[3], ident = w[4], host = w[5], account = None, failed = False)
+        WhoisPromise.lastWhois[netId()] = Whois(nick = w[3], ident = w[4], host = w[5], account = None, failed = False)
 
     @staticmethod
     def handler330(w, we, u):
-        if WhoisPromise.lastWhois:
-            WhoisPromise.lastWhois.account = w[4]
+        id = netId()
+        if id in WhoisPromise.lastWhois:
+            WhoisPromise.lastWhois[id].account = w[4]
 
     @staticmethod
     def handler318(w, we, u):
-        if WhoisPromise.lastWhois == None:
-            WhoisPromise.propose(Whois(nick = w[3], failed = True))
+        id = netId()
+        if id in WhoisPromise.lastWhois:
+            WhoisPromise.propose(id, WhoisPromise.lastWhois[id])
+            del WhoisPromise.lastWhois[id]
         else:
-            WhoisPromise.propose(WhoisPromise.lastWhois)
-        WhoisPromise.lastWhois = None
+            WhoisPromise.propose(id, Whois(nick = w[3], failed = True))
 
 class ChanServPromise(Promise):
     promises = []
-    def __init__(self, thread, channel):
+    def __init__(self, thread, ctx, channel):
             Promise.__init__(self, thread)
+            self.ctx = ctx
             self.channel = channel
             ChanServPromise.promises.append(self)
-            sendCommand("PRIVMSG ChanServ :OP " + self.channel)
+            sendCommand(ctx, "PRIVMSG ChanServ :OP " + self.channel)
 
     @staticmethod
     def handlerMODE(w, we, u):
@@ -226,8 +242,9 @@ class ChanServPromise(Promise):
                 nick = w[4]
                 if hexchat.nickcmp(nick, hexchat.get_info("nick")) == 0:
                     channel = w[2]
+                    id = netId()
                     def filt(p):
-                        if hexchat.nickcmp(p.channel, channel) == 0:
+                        if hexchat.nickcmp(p.channel, channel) == 0 and netId(p.ctx) == id:
                             p.fulfill(True)
                             return False
                         else:
@@ -239,21 +256,27 @@ class ChanServPromise(Promise):
         source = w[0][1:].split("!", 1)[0]
         text = we[3]
         if source == "ChanServ" and re.search(chanServFailure, text):
-            for p in ChanServPromise.promises:
-                p.fulfill(False)
-            ChanServPromise.promises = []
+            id = netId()
+            def filt(p):
+                if netId(p.ctx) == id:
+                    p.fulfill(False)
+                    return False
+                else:
+                    return True
+            ChanServPromise.promises = list(filter(filt, ChanServPromise.promises))
 
 def commandFlush(w, we, u):
     WhoisPromise.promises = []
+    WhoisPromise.lastWhois = {}
     ChanServPromise.promises = []
     log(1, "Flushed ChanServ and WHOIS threads")
     return hexchat.EAT_ALL
 
 def commandStatus(w, we, u):
     for p in ChanServPromise.promises:
-        hexchat.prnt("Waiting for ChanServ in " + p.channel)
+        hexchat.prnt("[" + str(netId(p.ctx)) + "] Waiting for ChanServ in " + p.channel)
     for p in WhoisPromise.promises:
-        hexchat.prnt("Waiting for WHOIS reply for " + p.nick)
+        hexchat.prnt("[" + str(netId(p.ctx)) + "] Waiting for WHOIS reply for " + p.nick)
     return hexchat.EAT_ALL
 
 class Action(Struct): pass
@@ -338,12 +361,12 @@ def renderActions(actions):
     return " ; ".join(ret)
 
 
-def executeActions(actions):
+def executeActions(ctx, actions):
     for a in actions:
         if isinstance(a, KickAction):
-            sendCommand("KICK " + a.channel + " " + a.nick + " :" + (a.reason or defaultKickReason))
+            sendCommand(ctx, "KICK " + a.channel + " " + a.nick + " :" + (a.reason or defaultKickReason))
         elif isinstance(a, RemoveAction):
-            sendCommand("REMOVE " + a.channel + " " + a.nick + (" :" + a.reason if a.reason else ""))
+            sendCommand(ctx, "REMOVE " + a.channel + " " + a.nick + (" :" + a.reason if a.reason else ""))
         elif isinstance(a, ModeAction):
             modeString = []
             argString = []
@@ -351,26 +374,27 @@ def executeActions(actions):
                 if isinstance(arg, WhoisArg):
                     for y in arg.promise.wait(): yield y
                     if arg.promise.value.failed:
-                        log(2, "Whois for " + arg.promise.value.nick + " failed, skipping")
+                        log(2, "[" + str(netId(ctx)) + "] Whois for " + arg.promise.value.nick + " failed, skipping")
                     else:
-                        log(1, "Received WHOIS: nick=" + arg.promise.value.nick + " ident=" + arg.promise.value.ident + " host=" + arg.promise.value.host + " account=" + (arg.promise.value.account or ""))
+                        log(1, "[" + str(netId(ctx)) + "] Received WHOIS: nick=" + arg.promise.value.nick + " ident=" + arg.promise.value.ident + " host=" + arg.promise.value.host + " account=" + (arg.promise.value.account or ""))
                         modeString.append(mode)
                         argString.append(arg.substitute(arg.promise.value))
                 else:
                     modeString.append(mode)
                     if arg:
                         argString.append(arg)
-            sendCommand("MODE " + a.channel + " " + "".join(modeString) + " " + " ".join(argString))
+            sendCommand(ctx, "MODE " + a.channel + " " + "".join(modeString) + " " + " ".join(argString))
         else:
             raise a
 
 def command(w, we, u):
     cmd = w[0]
     channel = hexchat.get_info("channel")
+    ctx = hexchat.get_context()
     @Async
     def async(thread):
         actions = parseActions(channel, we[1] if len(we) > 1 else "")
-        log(0, "[" + channel + "] /" + cmd + " " + renderActions(actions))
+        log(0, "[" + str(netId(ctx)) + "] [" + channel + "] /" + cmd + " " + renderActions(actions))
         if cmd in ["cd", "d"]:
             ModeAction.append(actions, ModeAction(channel = channel, modes = [("-o", hexchat.get_info("nick"))]))
         whoises = {}
@@ -379,16 +403,16 @@ def command(w, we, u):
                 for mode, arg in a.modes:
                     if isinstance(arg, WhoisArg):
                         if arg.nick not in whoises:
-                            whoises[arg.nick] = WhoisPromise(thread, arg.nick)
+                            whoises[arg.nick] = WhoisPromise(thread, ctx, arg.nick)
                         arg.promise = whoises[arg.nick]
         if cmd in ["cd", "co"]:
-            c = ChanServPromise(thread, channel)
+            c = ChanServPromise(thread, ctx, channel)
             for y in c.wait(): yield y
             if not c.value:
-                log(2, "ChanServ OP failed, aborting actions in " + channel)
+                log(2, "[" + str(netId(ctx)) + "] ChanServ OP failed, aborting actions in " + channel)
                 return
-            log(1, "Opped by ChanServ in " + channel + ", executing actions")
-        for y in executeActions(actions): yield y
+            log(1, "[" + str(netId(ctx)) + "] Opped by ChanServ in " + channel + ", executing actions")
+        for y in executeActions(ctx, actions): yield y
     return hexchat.EAT_ALL
 
 
