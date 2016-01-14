@@ -210,23 +210,38 @@ class WhoisPromise(Promise):
     lastWhois = {}
 
     @staticmethod
+    def ignoreIfQueued(w, we, u):
+        id = netId()
+        if id in WhoisPromise.lastWhois:
+            whois = WhoisPromise.lastWhois[id]
+            for p in WhoisPromise.promises:
+                if hexchat.nickcmp(p.nick, whois.nick) == 0 and netId(p.ctx) == id:
+                    log(0, "[" + str(id) + "] " + " ".join(w))
+                    return hexchat.EAT_ALL
+        return hexchat.EAT_NONE
+
+    @staticmethod
     def handler311(w, we, u):
         WhoisPromise.lastWhois[netId()] = Whois(nick = w[3], ident = w[4], host = w[5], account = None, failed = False)
+        return WhoisPromise.ignoreIfQueued(w, we, u)
 
     @staticmethod
     def handler330(w, we, u):
         id = netId()
         if id in WhoisPromise.lastWhois:
             WhoisPromise.lastWhois[id].account = w[4]
+        return WhoisPromise.ignoreIfQueued(w, we, u)
 
     @staticmethod
     def handler318(w, we, u):
+        ret = WhoisPromise.ignoreIfQueued(w, we, u)
         id = netId()
         if id in WhoisPromise.lastWhois:
             WhoisPromise.propose(id, WhoisPromise.lastWhois[id])
             del WhoisPromise.lastWhois[id]
         else:
             WhoisPromise.propose(id, Whois(nick = w[3], failed = True))
+        return ret
 
 class ChanServPromise(Promise):
     promises = []
@@ -518,6 +533,8 @@ def command(w, we, u):
 hexchat.hook_server("311", WhoisPromise.handler311)
 hexchat.hook_server("330", WhoisPromise.handler330)
 hexchat.hook_server("318", WhoisPromise.handler318)
+for numeric in ("276", "307", "310", "312", "313", "316", "317", "318", "319", "320", "330", "335", "337", "338", "378", "379", "671"):
+    hexchat.hook_server(numeric, WhoisPromise.ignoreIfQueued)
 hexchat.hook_server("MODE", ChanServPromise.handlerMODE)
 hexchat.hook_server("NOTICE", ChanServPromise.handlerNOTICE)
 hexchat.hook_server("005", handler005)
