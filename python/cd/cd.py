@@ -119,7 +119,7 @@ def log(level, string):
         context.prnt(time.strftime("[%H:%M:%S] ", t) + entry)
 log(1, __module_name__ + " " + __module_version__ + " initialising")
 
-def commandLog():
+def commandLog(w, we, u):
     context = hexchat.find_context(channel = logTab)
     if context:
         context.command("clear")
