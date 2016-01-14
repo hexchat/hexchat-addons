@@ -1,6 +1,6 @@
 __module_name__ = "cd"
 __module_author__ = "mniip"
-__module_version__ = "0.1.0"
+__module_version__ = "0.2.0"
 __module_description__ = "operator helper capable of executing composable actions"
 
 """
@@ -28,22 +28,23 @@ __module_description__ = "operator helper capable of executing composable action
         assumed that it is a mode, and the sign is inherited from the previous
         mode within the current action, or set to '+' if it was the first.
 
-        The 'k' action executes a kick. It is followed by a nickname and
+        The 'k' action executes a kick. It is followed by a target and
         optionally a reason. A default reason can be configured below.
 
         The 'r' action executes a REMOVE (force-part). It is followed by a
-        nickname and optinally a reason.
+        target and optinally a reason.
 
-        Mode actions can be followed by a parameter, optionally prefixed by a
-        WHOIS selector, and optionally suffixed by a redirection. A WHOIS
-        selector runs a WHOIS query on the parameter (presumingly a nickname)
-        and uses the resulting fields to construct a banmask. The selector is
-        either the symbol ':', or a combination of '!', '~', and '@'. The ':'
-        selector produces an account banmask: '$a:account'. Other selectors
-        substitute respective fields into the '*!*@*' banmask. '@' replaces the
-        host part of the banmask with the actual host provided by the WHOIS
-        reply. Likewise, '~' substitutes ident, and '!' substitutes nickname.
-        For example if you want to ban someone by nickname and host, you'd run
+        Mode actions can be followed by a parameter (also interpreted as a
+        target), optionally prefixed by a WHOIS selector, and optionally
+        suffixed by a redirection. A WHOIS selector runs a WHOIS query on the
+        target (presumingly a nickname) and uses the resulting fields to
+        construct a banmask. The selector is either the symbol ':', or a
+        combination of '!', '~', and '@'. The ':' selector produces an account
+        banmask: '$a:account'. Other selectors substitute respective fields into
+        the '*!*@*' banmask. '@' replaces the host part of the banmask with the
+        actual host provided by the WHOIS reply. Likewise, '~' substitutes
+        ident, and '!' substitutes nickname. For example if you want to ban
+        someone by nickname and host, you'd run
             /o +b !@ someone
         The redirection parameter corresponds to $#channel redirection bans, and
         consists of a dollar followed by a channel name.
@@ -55,12 +56,17 @@ __module_description__ = "operator helper capable of executing composable action
         The '+b' action ignores 'Kick reason', and the 'k' action ignores the
         '@' WHOIS selector.
 
+        On top of that, a target is either a single word (nickname), or a
+        whitespace-separated list of words (nicknames) surrounded by '(' and
+        ')'. For example, you can voice multiple people at once with:
+            /o +v (foo bar)
+
         The syntax is whitespace-permissive, with the only exception being that
         when multiple actions reuse the same argument, they should be 'glued'
         into one word to avoid ambiguities. As such, the following commands are
         the same:
-            /o +bk@user$#redirect Reason;+q!user
-            /o +bk @ user $ #redirect Reason ; +q ! user
+            /o +bk@(foo bar)$#redirect Reason;+q!user
+            /o +bk @ ( foo bar ) $ #redirect Reason ; +q ! user
 
     Copyright (c) 2015, mniip
 
@@ -374,7 +380,11 @@ def parseActions(channel, input):
             if "@" in wh:
                 whoiser += "@"
         rest = rest.lstrip()
-        nick, rest = re.match(r"^(\$*[^\s$]*)(.*)$", rest).groups()
+        targ, rest = re.match(r"^(\([^)]*\)?|\$*[^\s$]*)(.*)$", rest).groups()
+        if len(targ) and targ[0] == '(':
+            targets = targ[1:].rstrip(')').split()
+        else:
+            targets = [targ]
         rest = rest.lstrip()
         forward = None
         m = re.match(r"^\$\s*(\S+)(.*)$", rest)
@@ -384,21 +394,24 @@ def parseActions(channel, input):
         lastSign = "+"
         for command in re.findall(r"[+-=]?[a-zA-Z]", commands):
             if command == "k":
-                actions.append(KickAction(channel = channel, nick = nick, reason = extra))
+                for nick in targets:
+                    actions.append(KickAction(channel = channel, nick = nick, reason = extra))
             elif command == "r":
-                actions.append(RemoveAction(channel = channel, nick = nick, reason = extra))
+                for nick in targets:
+                    actions.append(RemoveAction(channel = channel, nick = nick, reason = extra))
             else:
                 if command[0] not in ["+", "-", "="]:
                     command = lastSign + command
                 else:
                     lastSign = command[0]
-                if whoiser != "":
-                    modeArg = WhoisArg(nick = nick, whoiser = whoiser, forward = forward)
-                elif nick != "":
-                    modeArg = nick + "$" + forward if forward else nick
-                else:
-                    modeArg = None
-                ModeAction.append(actions, ModeAction(channel = channel, modes = [(command, modeArg)]))
+                for nick in targets:
+                    if whoiser != "":
+                        modeArg = WhoisArg(nick = nick, whoiser = whoiser, forward = forward)
+                    elif nick != "":
+                        modeArg = nick + "$" + forward if forward else nick
+                    else:
+                        modeArg = None
+                    ModeAction.append(actions, ModeAction(channel = channel, modes = [(command, modeArg)]))
     return actions
 
 def renderActions(actions):
