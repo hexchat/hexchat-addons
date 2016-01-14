@@ -1,6 +1,6 @@
 __module_name__ = "cd"
 __module_author__ = "mniip"
-__module_version__ = "0.0.6"
+__module_version__ = "0.1.0"
 __module_description__ = "operator helper capable of executing composable actions"
 
 """
@@ -25,7 +25,8 @@ __module_description__ = "operator helper capable of executing composable action
     Action syntax:
         An action is either a mode (plus or minus followed by a letter), or the
         letters 'k' and 'r' alone. If a different letter is encountered, it is
-        assumed that a plus sign is missing.
+        assumed that it is a mode, and the sign is inherited from the previous
+        mode within the current action, or set to '+' if it was the first.
 
         The 'k' action executes a kick. It is followed by a nickname and
         optionally a reason. A default reason can be configured below.
@@ -94,11 +95,14 @@ __module_description__ = "operator helper capable of executing composable action
 """
 
 defaultKickReason = "Your behavior is not conductive to the desired environment."
-modesPerLine = 4
+defaultModesPerLine = 3
+hardModeLimit = 16
+fixModes = True
 logLevel = 1
 logPrefixes = ["\x0302(==) ", "\x0303(**) ", "\x0304(EE) "]
 logTab = "(cd)"
 chanServFailure = r"not authorized|is not registered|is not on|is closed"
+ignoreVersions = r"(?!)"
 
 try:
     import xchat
@@ -135,7 +139,7 @@ def commandLog(w, we, u):
     return hexchat.EAT_ALL
 
 def netId(ctx = None):
-    if ctx == None:
+    if ctx == None or ctx == hexchat.get_context():
         return hexchat.get_prefs("id")
     else:
         for c in hexchat.get_list("channels"):
@@ -279,6 +283,40 @@ def commandStatus(w, we, u):
         hexchat.prnt("[" + str(netId(p.ctx)) + "] Waiting for WHOIS reply for " + p.nick)
     return hexchat.EAT_ALL
 
+versions = {}
+
+if fixModes:
+    for c in hexchat.get_list("channels"):
+        if c.type == 1 and not re.match(ignoreVersions, c.network):
+            versions[netId(c.context)] = {}
+            sendCommand(c.context, "VERSION")
+
+def handler005(w, we, u):
+    id = netId()
+    if id not in versions:
+        versions[id] = {}
+    for i in range(3, len(w)):
+        if len(w[i]) and w[i][0] == ':':
+            break
+        if '=' in w[i]:
+            key, value = w[i].split('=', 1)
+            if key == "MODES":
+                try:
+                    versions[id]["maxModes"] = int(value)
+                except ValueError:
+                    pass
+            elif key == "CHANMODES":
+                classes = value.split(',')
+                if len(classes) >= 4:
+                    versions[id]["listModes"] = classes[0]
+                    versions[id]["alwaysArgModes"] = classes[1]
+                    versions[id]["setArgModes"] = classes[2]
+                    versions[id]["neverArgModes"] = classes[3]
+            elif key == "PREFIX":
+                if value[0] == '(':
+                    ret = value[1:].split(')', 1)
+                    versions[id]["statusModes"] = ret[0]
+
 class Action(Struct): pass
 class KickAction(Action): pass
 class RemoveAction(Action): pass
@@ -288,7 +326,7 @@ class ModeAction(Action):
     def append(list, mode):
         if len(list):
             a = list[-1]
-            if isinstance(a, ModeAction) and a.channel == mode.channel and len(a.modes) < modesPerLine:
+            if isinstance(a, ModeAction) and a.channel == mode.channel:
                 a.modes.extend(mode.modes)
                 return
         list.append(mode)
@@ -328,6 +366,7 @@ def parseActions(channel, input):
         if m:
             forward, rest = m.groups()
         extra = rest.lstrip()
+        lastSign = "+"
         for command in re.findall(r"[+-=]?[a-zA-Z]", commands):
             if command == "k":
                 actions.append(KickAction(channel = channel, nick = nick, reason = extra))
@@ -335,7 +374,9 @@ def parseActions(channel, input):
                 actions.append(RemoveAction(channel = channel, nick = nick, reason = extra))
             else:
                 if command[0] not in ["+", "-", "="]:
-                    command = "+" + command
+                    command = lastSign + command
+                else:
+                    lastSign = command[0]
                 if whoiser != "":
                     modeArg = WhoisArg(nick = nick, whoiser = whoiser, forward = forward)
                 elif nick != "":
@@ -360,8 +401,12 @@ def renderActions(actions):
                     ret.append(mode + (" " + arg if arg else ""))
     return " ; ".join(ret)
 
-
 def executeActions(ctx, actions):
+    id = netId(ctx)
+    if id in versions:
+        maxModes = versions[id].get("maxModes", defaultModesPerLine)
+    else:
+        maxModes = defaultModesPerLine
     for a in actions:
         if isinstance(a, KickAction):
             sendCommand(ctx, "KICK " + a.channel + " " + a.nick + " :" + (a.reason or defaultKickReason))
@@ -371,6 +416,10 @@ def executeActions(ctx, actions):
             modeString = []
             argString = []
             for mode, arg in a.modes:
+                if (arg != None and len(argString) >= maxModes) or len(modeString) >= hardModeLimit:
+                    sendCommand(ctx, "MODE " + a.channel + " " + "".join(modeString) + " " + " ".join(argString))
+                    modeString = []
+                    argString = []
                 if isinstance(arg, WhoisArg):
                     for y in arg.promise.wait(): yield y
                     if arg.promise.value.failed:
@@ -383,9 +432,50 @@ def executeActions(ctx, actions):
                     modeString.append(mode)
                     if arg:
                         argString.append(arg)
-            sendCommand(ctx, "MODE " + a.channel + " " + "".join(modeString) + " " + " ".join(argString))
+            if len(modeString):
+                sendCommand(ctx, "MODE " + a.channel + " " + "".join(modeString) + " " + " ".join(argString))
         else:
             raise a
+
+def tryFixModes(version, action):
+    ret = []
+    listModes = version.get("listModes", "Ibe")
+    alwaysArgModes = version.get("alwaysArgModes", "k")
+    setArgModes = version.get("setArgModes", "l")
+    neverArgModes = version.get("neverArgModes", "imnpst")
+    statusModes = version.get("statusModes", "ov")
+    lastArg = False
+    for mode, arg in action.modes:
+        if mode[1] in listModes:
+            if not arg:
+                lastArg = True
+        elif mode[1] in alwaysArgModes:
+            if not arg:
+                lastArg = True
+        elif mode[1] in setArgModes:
+            if mode[0] == '+':
+                if not arg:
+                    log(2, "Ignoring mode " + mode + " without argument")
+                    continue
+            elif mode[0] == '-':
+                if arg:
+                    log(1, "Ignoring argument for " + mode)
+                    arg = None
+        elif mode[1] in neverArgModes:
+            if arg:
+                log(1, "Ignoring argument for " + mode)
+                arg = None
+        elif mode[1] in statusModes:
+            if not arg:
+                log(2, "Ignoring mode " + mode + " without argument")
+                continue
+        ma = ModeAction(channel = action.channel, modes = [(mode, arg)])
+        if lastArg and arg != None:
+            ret.append(ma)
+            lastArg = False
+        else:
+            ModeAction.append(ret, ma)
+    return ret
 
 def command(w, we, u):
     cmd = w[0]
@@ -398,6 +488,15 @@ def command(w, we, u):
         if cmd in ["cd", "d"]:
             ModeAction.append(actions, ModeAction(channel = channel, modes = [("-o", hexchat.get_info("nick"))]))
         whoises = {}
+        if fixModes and not re.match(ignoreVersions, ctx.get_info("network")):
+            version = versions.get(netId(ctx), {})
+            newactions = []
+            for a in actions:
+                if isinstance(a, ModeAction):
+                    newactions.extend(tryFixModes(version, a))
+                else:
+                    newactions.append(a)
+            actions = newactions
         for a in actions:
             if isinstance(a, ModeAction):
                 for mode, arg in a.modes:
@@ -421,6 +520,7 @@ hexchat.hook_server("330", WhoisPromise.handler330)
 hexchat.hook_server("318", WhoisPromise.handler318)
 hexchat.hook_server("MODE", ChanServPromise.handlerMODE)
 hexchat.hook_server("NOTICE", ChanServPromise.handlerNOTICE)
+hexchat.hook_server("005", handler005)
 
 hexchat.hook_command("cd_log", commandLog);
 hexchat.hook_command("cd_flush", commandFlush);
