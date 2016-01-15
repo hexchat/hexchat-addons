@@ -1,6 +1,6 @@
 __module_name__ = "cd"
 __module_author__ = "mniip"
-__module_version__ = "0.2.0"
+__module_version__ = "0.2.1"
 __module_description__ = "operator helper capable of executing composable actions"
 
 """
@@ -24,12 +24,15 @@ __module_description__ = "operator helper capable of executing composable action
 
     Action syntax:
         An action is either a mode (plus or minus followed by a letter), or the
-        letters 'k' and 'r' alone. If a different letter is encountered, it is
-        assumed that it is a mode, and the sign is inherited from the previous
-        mode within the current action, or set to '+' if it was the first.
+        letters 'k', 'i', or 'r' alone. If a different letter is encountered, it
+        is assumed that it is a mode, and the sign is inherited from the
+        previous mode within the current action, or set to '+' if it was the
+        first.
 
         The 'k' action executes a kick. It is followed by a target and
         optionally a reason. A default reason can be configured below.
+
+        The 'i' action executes an invite. It is followed by a target.
 
         The 'r' action executes a REMOVE (force-part). It is followed by a
         target and optinally a reason.
@@ -340,6 +343,7 @@ def handler005(w, we, u):
 
 class Action(Struct): pass
 class KickAction(Action): pass
+class InviteAction(Action): pass
 class RemoveAction(Action): pass
 
 class ModeAction(Action):
@@ -396,6 +400,9 @@ def parseActions(channel, input):
             if command == "k":
                 for nick in targets:
                     actions.append(KickAction(channel = channel, nick = nick, reason = extra))
+            elif command == "i":
+                for nick in targets:
+                    actions.append(InviteAction(channel = channel, nick = nick))
             elif command == "r":
                 for nick in targets:
                     actions.append(RemoveAction(channel = channel, nick = nick, reason = extra))
@@ -419,6 +426,8 @@ def renderActions(actions):
     for a in actions:
         if isinstance(a, KickAction):
             ret.append("k " + a.nick + (" " + a.reason if a.reason else ""))
+        elif isinstance(a, InviteAction):
+            ret.append("i " + a.nick)
         elif isinstance(a, RemoveAction):
             ret.append("r " + a.nick + (" " + a.reason if a.reason else ""))
         elif isinstance(a, ModeAction):
@@ -438,6 +447,8 @@ def executeActions(ctx, actions):
     for a in actions:
         if isinstance(a, KickAction):
             sendCommand(ctx, "KICK " + a.channel + " " + a.nick + " :" + (a.reason or defaultKickReason))
+        elif isinstance(a, InviteAction):
+            sendCommand(ctx, "INVITE " + a.nick + " " + a.channel)
         elif isinstance(a, RemoveAction):
             sendCommand(ctx, "REMOVE " + a.channel + " " + a.nick + (" :" + a.reason if a.reason else ""))
         elif isinstance(a, ModeAction):
