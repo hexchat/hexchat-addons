@@ -26,7 +26,10 @@ def msg_event(w, we, event):
             status = lastTarget[:-len(target)]
             if len(status):
                 if not any(c.isalpha() or c.isdigit() for c in status):
-                    w[2] = "[" + status + "]" + w[2]
+                    if len(w) > 2:
+                        w[2] = "[" + status + "]" + w[2]
+                    else:
+                        w.append("[" + status + "]")
                     recursion = True
                     hexchat.emit_print(event, *w)
                     recursion = False
