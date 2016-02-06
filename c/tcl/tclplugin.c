@@ -840,7 +840,7 @@ static int tcl_on(ClientData cd, Tcl_Interp * irp, int argc, const char *argv[])
         for (index = 0; index < XC_SIZE; index++) {
             if (strcmp(xc[index].event, token) == 0) {
                 if (xc[index].hook == NULL) {
-                    xc[index].hook = hexchat_hook_print(ph, xc[index].emit, HEXCHAT_PRI_NORM, Print_Hook, (void *) index);
+                    xc[index].hook = hexchat_hook_print(ph, xc[index].emit, HEXCHAT_PRI_NORM, Print_Hook, (void *)(uintptr_t)index);
                     break;
                 }
             }
