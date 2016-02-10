@@ -103,7 +103,7 @@ __module_description__ = "operator helper capable of executing composable action
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-defaultKickReason = "Your behavior is not conductive to the desired environment."
+defaultKickReason = "Your behavior is not conducive to the desired environment."
 defaultModesPerLine = 3
 hardModeLimit = 16
 fixModes = True
