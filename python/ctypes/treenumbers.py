@@ -145,14 +145,27 @@ gtk     = cdll.LoadLibrary("gtk-win32-2.0.dll")
 gobject = cdll.LoadLibrary("gobject-2.0.dll")
 glib    = cdll.LoadLibrary("glib-2.0.dll")
 
+GTKCALLBACK = CFUNCTYPE(None, POINTER(GTypeInstance), c_void_p)
+gobject.g_type_check_instance_is_a.argtypes = [c_void_p, c_void_p]
 gobject.g_type_check_instance_is_a.restype = c_bool
 gobject.g_object_class_list_properties.argtypes = [c_void_p, POINTER(c_int)]
 gobject.g_object_class_list_properties.restype = POINTER(POINTER(GParamSpec))
 gobject.g_type_name.restype = c_char_p
+gtk.gtk_tree_view_get_type.restype = POINTER(GTypeClass)
 gtk.gtk_tree_model_iter_next.restype = c_bool
 gtk.gtk_tree_path_to_string.restype = c_char_p
+gtk.gtk_container_foreach.argtypes = [c_void_p, GTKCALLBACK, c_void_p]
+gtk.gtk_tree_view_get_model.argtypes = [c_void_p]
+gtk.gtk_tree_view_get_model.restype = c_void_p
+gtk.gtk_tree_store_get_type.restype = POINTER(GTypeClass)
+gtk.gtk_tree_model_get_iter_first.argtypes = [c_void_p, c_void_p]
+gtk.gtk_tree_model_get_iter_first.restype = c_bool
+gtk.gtk_tree_model_get.argtypes = [c_void_p, c_void_p, c_int, c_void_p, c_int, c_void_p, c_int]
+gtk.gtk_tree_store_set.argtypes = [c_void_p, c_void_p, c_int, c_char_p, c_int]
+gtk.gtk_tree_model_iter_children.argtypes = [c_void_p, c_void_p, c_void_p]
+gtk.gtk_tree_model_iter_children.restype = c_bool
+gtk.gtk_tree_model_iter_next.argtypes = [c_void_p, GtkTreeIter]
 
-GTKCALLBACK = CFUNCTYPE(None, c_void_p, c_void_p)
 
 # can't mutate global data from C callbacks
 class TreeNumerator:
@@ -171,9 +184,7 @@ class TreeNumerator:
                 GTKCALLBACK(self.get_tree_store_cb), None)
         return self.treestore
 
-    def get_tree_store_cb(self, a, data):
-
-        gobj = cast(a, POINTER(GTypeInstance))
+    def get_tree_store_cb(self, gobj, data):
 
         if gobject.g_type_check_instance_is_a(gobj,
                 gtk.gtk_tree_view_get_type()):
@@ -188,7 +199,7 @@ class TreeNumerator:
                 self.treestore = store
                 return
 
-        gtk.gtk_container_foreach(a, GTKCALLBACK(self.get_tree_store_cb), None)
+        gtk.gtk_container_foreach(gobj, GTKCALLBACK(self.get_tree_store_cb), None)
 
     def process_tab(self, iter, n, seek=True):
         v = c_char_p()
