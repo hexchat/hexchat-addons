@@ -58,7 +58,6 @@ if hexchat.get_prefs('text_color_nicks') == 1: # if user has enabled the
     nicenicks_enabled = True
 else:
     nicenicks_enabled = False
-
 debug_enabled = False
 
 # You can edit the following default colour table if you want the program to use fewer colours
@@ -121,7 +120,7 @@ def get_color(ctable, nick):
     color = None
     nick = nick.lower()
 
-    # permanent colour AD_Anime-change dmsg <-> omsg
+    # permanent colour
     if nick in permacolortable:
         pcolor = permacolortable[nick]
         dmsg('In permacolortable')
@@ -132,14 +131,12 @@ def get_color(ctable, nick):
     # iterate backwards through ctable
     for i in range(len(ctable)-1,-1,-1):
         c, n = ctable[i]
-
         if pcolor != None and c == pcolor: # if we found this nick's permcolor
             # steal the color from whoever's using it
             ctable.pop(i)
             ctable.append((c, nick))
             dmsg("1: " + str(c) + " " + nick)
             return c
-
         elif n == nick:
             color = c
             if pcolor != None and c != pcolor: # if this nick has a color in the table different from its permacolor
@@ -165,7 +162,6 @@ def get_color(ctable, nick):
     dmsg("Resultant color: " + str(color), "GETCOLOR")
     return color
 
-
 ######## XCHAT CALLBACKS ########
 
 def color_table_command(word, word_eol, userdata):
@@ -187,16 +183,13 @@ def setcolor_command(word, word_eol, userdata):
         items = permacolortable.items()
         if len(items) > 0:
             # print perma-color table
-
             omsg("These are the current permanent colour mappings:", "PERMA-COLORS")
-
             for name, color in items:
                 jprint("\t   ", col(color), name, " = ", col(11), str(color), ecs("o"))
             omsg("To remove a user from this list, type /setcolor -nick", "NOTE")
 
         else:
             omsg("No nick colour mappings assigned. Type /HELP SETCOLOR for more info.", "PERMA-COLORS")
-
         return hexchat.EAT_ALL
 
     nick = word[1].lower() # get lowercase nick
@@ -282,7 +275,6 @@ def nicedebug_command(word, word_eol, userdata):
 
 def nicenicks_dump_command(word, word_eol, userdata):
     "Display nick associations for all channels"
-
     omsg("DUMP:\t", "Nicenicks dump", prefix="")
     print(chancolortable)
     return hexchat.EAT_ALL
