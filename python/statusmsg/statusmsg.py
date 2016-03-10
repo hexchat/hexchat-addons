@@ -1,5 +1,5 @@
 __module_name__ = "statusmsg"
-__module_version__ = "1.0.0"
+__module_version__ = "1.1.0"
 __module_description__ = "Highlight statusmsg (+#channel, @#channel, etc) messages in a distinct way."
 __module_author__ = "mniip"
 
@@ -19,7 +19,7 @@ def msg_event(w, we, event):
     global recursion
     if recursion:
         return hexchat.EAT_NONE
-    source = w[0]
+    source = hexchat.strip(w[0])
     target = hexchat.get_info("channel")
     if hexchat.nickcmp(source, lastSource) == 0:
         if hexchat.nickcmp(target, lastTarget[-len(target):]) == 0:
