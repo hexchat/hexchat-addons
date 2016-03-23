@@ -536,7 +536,9 @@ def make_argparser_and_args():
     ba.append(bin_api_group.add_argument("-e", "--expiry", default=get_option("expiry"), help="Length of time we should tell the pastebin API to keep the paste."))
     ba.append(bin_api_group.add_argument("-s", "--syntax", default=get_option("syntax"), help="Try to get the pastebin to use syntax highlighting, e.g. 'python' or 'html'"))
     ba.append(bin_api_group.add_argument("-x", "--exposure", default=get_option("exposure"), help="Privacy setting for this paste."))
-    ba.append(bin_api_group.add_argument("-c", "--custom-opt", action="append", help="Custom options to give to the Pastebin API (as strings). For instance, some APIs might be coded to support a maximum read count. Use the syntax \"key=value\" including quotes."))
+    
+    # TODO: Make this work:
+    #ba.append(bin_api_group.add_argument("-c", "--custom-opt", action="append", help="Custom options to give to the Pastebin API (as strings). For instance, some APIs might be coded to support a maximum read count. Use the syntax \"key=value\" including quotes."))
 
     outputgroup = argparser.add_argument_group(title="Output destinations")
     oa = []
