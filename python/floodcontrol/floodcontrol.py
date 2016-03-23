@@ -30,34 +30,7 @@ __module_name__ = str("Floodcontrol") # Alternative names: Discharge, Flood Tunn
 __module_version__ = str("0.1")
 __module_description__ = str("Sends your floody messages to a pastebin service and gives you the URL.")
 
-"""HexChat plugin for intercepting floody messages from the user, and redirecting them to a pastebin service.
-
-## Inputbox replacement
-Messages can be replaced while they are still in the user's inputbox.
-
-Some examples:
-
-```
-long message in inputbox
-```
-Might get replaced with:
-```
-https://example.pastebin/abcde
-```
-
-It also knows about messages sent with commands. So:
-```
-/msg Burrito long message in inputbox
-```
-Might get replaced with:
-```
-/msg Burrito https://example.pastebin/abcd
-```
-
-## Pastebin from a command
-
-(TODO - is pretty complex.)
-"""
+"""HexChat plugin for intercepting floody messages from the user, and redirecting them to a pastebin service."""
 
 # IDEA: User could set their own shell command for us to use, we'll send the contents to its stdin.
 
@@ -578,7 +551,7 @@ def make_argparser_and_args():
 
     ma = []
     # The following arg gets mutated into a tuple, when used through do_paste_cmd: (command, rest_of_message)
-    ma.append(argparser.add_argument("--guard-inputbox-cmd", action="store_true", help="If specified, will take care not to send known commands to the pastebin, and preserve it when we get the URL back."))
+    ma.append(argparser.add_argument("--guard-inputbox-cmd", action="store_true", help="If specified, will take care not to send known commands to the pastebin, and preserve it when we get the URL back. For instance, \"/msg Burrito testing\" would only send \"testing\" and preserve \"/msg Burrito\" in the inputbox."))
 
     ARG_GROUPS = {}
     ARG_GROUPS['input'] = {arg.dest for arg in ia}
