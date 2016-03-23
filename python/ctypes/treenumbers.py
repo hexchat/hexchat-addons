@@ -90,10 +90,9 @@ class Server(Structure):
                ,("proxy_sok",          c_int)
                ,("proxy_sok4",         c_int)
                ,("proxy_sok6",         c_int)
-               ,("msp_state",          MSProxyState)
                ,("id",                 c_int)
                # uncomment/comment per your config as appropriate
-               #ifdef USE_SSL
+               #ifdef USE_OPENSSL
                ,("ctx",                c_void_p)
                ,("ssl",                c_void_p)
                ,("ssl_do_connect_tag", c_int)
@@ -119,7 +118,6 @@ class Session(Structure):
                ,("text_scrollback",   c_byte)
                ,("text_strip",        c_byte)
                ,("server",            POINTER(Server))
-               ,("usertree_alpha",    c_void_p)
                ,("usertree",          c_void_p)
                ,("me",                POINTER(User))
                ,("channel",           c_char * 300)
