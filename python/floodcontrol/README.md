@@ -41,7 +41,9 @@ optional arguments:
   -h, --help            show this help message and exit
   --guard-inputbox-cmd  If specified, will take care not to send known
                         commands to the pastebin, and preserve it when we get
-                        the URL back.
+                        the URL back. For instance, "/msg Burrito testing" would
+                        only send "testing" and preserve "/msg Burrito" in the 
+                        inputbox.
 
 Input sources:
   content               Ignored if a --from-* argument is specified. The
