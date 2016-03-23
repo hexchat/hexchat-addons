@@ -1,7 +1,6 @@
 from __future__ import print_function, unicode_literals
 
 import hexchat
-import random
 import threading
 import time
 import itertools
@@ -81,8 +80,8 @@ def default_returnvalue(returnvalue, error_returnvalue):
             try:
                 r = f(*args, **kwargs)
             except Exception as e:
-                for line in traceback.format_exception():
-                    print_fc(line.strip())
+                for line in traceback.format_exc().splitlines():
+                    print_fc(line)
                 return error_returnvalue
 
             if r is None:
@@ -393,6 +392,7 @@ def find_content_in_args(words, words_eol, parser, key_to_watch="content"):
 
     # TODO: binary search might be faster
     command_params = words[1:]
+    print_debug("command_params", command_params)
     parsed_before = []
     for i in range(len(command_params)):
         to_parse = command_params[:i+1]
@@ -536,7 +536,7 @@ def make_argparser_and_args():
     ba.append(bin_api_group.add_argument("-e", "--expiry", default=get_option("expiry"), help="Length of time we should tell the pastebin API to keep the paste."))
     ba.append(bin_api_group.add_argument("-s", "--syntax", default=get_option("syntax"), help="Try to get the pastebin to use syntax highlighting, e.g. 'python' or 'html'"))
     ba.append(bin_api_group.add_argument("-x", "--exposure", default=get_option("exposure"), help="Privacy setting for this paste."))
-    
+
     # TODO: Make this work:
     #ba.append(bin_api_group.add_argument("-c", "--custom-opt", action="append", help="Custom options to give to the Pastebin API (as strings). For instance, some APIs might be coded to support a maximum read count. Use the syntax \"key=value\" including quotes."))
 
