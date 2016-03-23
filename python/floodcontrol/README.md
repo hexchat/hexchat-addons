@@ -33,7 +33,7 @@ These replacements happen automatically if the user tries to send a message whic
 This is the most versatile way of interacting with Floodcontrol. You can bind a command to a Userlist button (*Settings* > *Userlist Buttons...*), for example.
 ```
 usage: fc_paste [-h] [-fi] [-fb] [-fw] [-C] [-p SERVICE] [-n NAME] [-e EXPIRY]
-                [-s SYNTAX] [-x EXPOSURE] [-c CUSTOM_OPT] [-tc COMMAND] [-ti]
+                [-s SYNTAX] [-x EXPOSURE] [-tc COMMAND] [-ti]
                 [-tir] [-tb] [-S] [--guard-inputbox-cmd]
                 [content [content ...]]
 
@@ -74,11 +74,6 @@ Pastebin API arguments:
                         e.g. 'python' or 'html'
   -x EXPOSURE, --exposure EXPOSURE
                         Privacy setting for this paste.
-  -c CUSTOM_OPT, --custom-opt CUSTOM_OPT
-                        Custom options to give to the Pastebin API (as
-                        strings). For instance, some APIs might be coded to
-                        support a maximum read count. Use the syntax
-                        "key=value" including quotes.
 
 Output destinations:
   -tc COMMAND, --to-command COMMAND
