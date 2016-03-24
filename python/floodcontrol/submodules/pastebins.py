@@ -158,7 +158,7 @@ class pb(PastebinAPI):
             if formatter in pb.get_formatters():
                 url = url + "/" + formatter
 
-        return result['url'], r_msg
+        return url, r_msg
     @staticmethod
     def read(url, lines=None, chars=None, user_agent=None, **kwargs):
         split_path = urlparse.urlsplit(url).path.split("/")
