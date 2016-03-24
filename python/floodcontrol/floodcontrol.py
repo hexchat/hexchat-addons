@@ -157,7 +157,8 @@ default_config = {
     "expiry": "1 week",
     "exposure": "unlisted",
     "syntax": "text",
-    "name": "Pasted by Hexchat Floodcontrol"
+    "name": "Pasted by Hexchat Floodcontrol",
+    "autopaste": "on"
 }
 
 def make_argparser_and_args_after_config():
@@ -189,23 +190,23 @@ def del_option(key):
         raise PluginConfigError(key)
     make_argparser_and_args_after_config()
 
-def set_max_lines_for_channel(value=None, channel=None, network=None):
-    # TODO: This and the next function are supposed to set the preferred maximum
-    # lines before we should ask the user whether to pastebin.
-    if channel is None:
-        channel = hexchat.get_info("channel")
-    if network is None:
-        network = hexchat.get_info("network")
-    key = "maxlines_{}_{}".format(channel, network)
-
-    if value is not None:
-        set_option(key, value)
-    else:
-        del_option(key)
-
-def get_max_lines_for_channel(channel=None, network=None):
-    key = "maxlines_{}_{}".format(channel, network)
-    # TODO
+# def set_max_lines_for_channel(value=None, channel=None, network=None):
+#     # TODO: This and the next function are supposed to set the preferred maximum
+#     # lines before we should ask the user whether to pastebin.
+#     if channel is None:
+#         channel = hexchat.get_info("channel")
+#     if network is None:
+#         network = hexchat.get_info("network")
+#     key = "maxlines_{}_{}".format(channel, network)
+#
+#     if value is not None:
+#         set_option(key, value)
+#     else:
+#         del_option(key)
+#
+# def get_max_lines_for_channel(channel=None, network=None):
+#     key = "maxlines_{}_{}".format(channel, network)
+#     # TODO
 
 ###
 
@@ -791,9 +792,11 @@ def toggle_autopaste(*args):
     print_debug(requested)
     if not autopaste_handler and requested.lower() not in bools[False]:
         print_fc("enabling autopaste")
+        set_option("autopaste", "on")
         autopaste_handler = hexchat.hook_print("Key Press", keypress_cb)
     elif requested.lower() not in bools[True]:
         print_fc("disabling autopaste")
+        set_option("autopaste", "off")
         hexchat.unhook(autopaste_handler)
         autopaste_handler = None
 
@@ -802,7 +805,7 @@ if __name__ == "__main__":
     hexchat.hook_command("fc_debug", toggle_debug, help="Toggle debug messages on/off for Floodcontrol.")
 
     hexchat.hook_command("fc_autopaste", toggle_autopaste, help="Toggle autopaste on/off. Autopaste will notify you to confirm sending your floody message to the pastebin service automatically when you try to send it.")
-    toggle_autopaste(["", "on"])
+    toggle_autopaste(["", get_option("autopaste")])
     hexchat.hook_command("fc_setpastebin", set_service_cmd, help="Set which pastebin to use for Floodcontrol. Provide no parameters to see a list of available pastebins. Provide 'default' to set back to default.")
 
     hexchat.hook_command("fc_paste", do_paste_cmd, help="Try /fc_paste -h")
