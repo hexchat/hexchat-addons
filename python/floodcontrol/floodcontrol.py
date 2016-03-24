@@ -168,6 +168,8 @@ def make_argparser_and_args_after_config():
 def set_option(key, value):
     hkey = "{}_{}".format(__module_name__, key)
 
+    value = str(value)
+
     success = hexchat.set_pluginpref(hkey, value)
     if not success:
         raise PluginConfigError((key, value))
