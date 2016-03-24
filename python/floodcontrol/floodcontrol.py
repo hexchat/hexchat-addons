@@ -1,28 +1,28 @@
 from __future__ import print_function, unicode_literals
 # Author & maintainer: BurritoBazooka <burritobazooka@gmail.com>
-# License: 
+# License:
 ######################################
 # The MIT License (MIT)
 
 # Copyright (c) 2016 BurritoBazooka
 
 # Permission is hereby granted, free of charge, to any person obtaining
-# a copy of this software and associated documentation files (the 
+# a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
-# without limitation the rights to use, copy, modify, merge, publish, 
-# distribute, sublicense, and/or sell copies of the Software, and to 
-# permit persons to whom the Software is furnished to do so, subject 
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject
 # to the following conditions:
 
-# The above copyright notice and this permission notice shall be 
+# The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
-# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+# FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ######################################
 import hexchat
@@ -157,7 +157,7 @@ default_config = {
     "expiry": "1 week",
     "exposure": "unlisted",
     "syntax": "text",
-    "name": "Auto-pasted by Hexchat Floodcontrol"
+    "name": "Pasted by Hexchat Floodcontrol"
 }
 
 def make_argparser_and_args_after_config():
@@ -551,6 +551,8 @@ def make_argparser_and_args():
     ia.append(inputgroup.add_argument("-fw", "--from-window", action="store_const", help="If specified, will create a popup window using /GETSTR and send the response to the pastebin.", dest="source", const="window"))
     ia.append(inputgroup.add_argument("-C", "--confirm", action="store_true", help="If specified, we will first use /GETBOOL to get user confirmation before sending data to the patebin service."))
 
+    # IDEA: Paste from file path: -ff /home/user/blah.txt
+
     # Pastebin API options. The interpretation and functionality of these depend completely on the chosen API.
     # TODO: Custom HelpFormatter for bold and italics in IRC.
 
@@ -671,7 +673,8 @@ def preprocess_inputbox(inputbox):
     #   e.g. "/msg OtherUser"
     # "cmd_legth" is how much space this command would take up in the raw message to the server.
     cmdprefix = hexchat.get_prefs("input_command_char") # default is "/" as in "/msg"
-    if not inputbox.startswith(cmdprefix):
+    if inputbox.startswith(cmdprefix + cmdprefix) or not inputbox.startswith(cmdprefix):
+        # ('//msg blah' is the same as '/say /msg blah')
         cmd_length = commands_options['say']['cmdlength']
         return True, inputbox, "", cmd_length
     else:
@@ -685,7 +688,6 @@ def preprocess_inputbox(inputbox):
             re_cmd_and_msg = r"((?:\S*\s){%s})" % paramcount
 
             # fullcommand here would be "/msg OtherUser" in the example of "/msg OtherUser message"
-            # TODO: /msg otheruser longmsg doesn't work
             _, fullcommand, message = [word for word in re.split(re_cmd_and_msg, inputbox) if word]
             fullcommand.strip()
 
@@ -797,9 +799,9 @@ def toggle_autopaste(*args):
 
 if __name__ == "__main__":
 
-    hexchat.hook_command("fc_debug", toggle_debug)
+    hexchat.hook_command("fc_debug", toggle_debug, help="Toggle debug messages on/off for Floodcontrol.")
 
-    hexchat.hook_command("fc_autopaste", toggle_autopaste)
+    hexchat.hook_command("fc_autopaste", toggle_autopaste, help="Toggle autopaste on/off. Autopaste will notify you to confirm sending your floody message to the pastebin service automatically when you try to send it.")
     toggle_autopaste(["", "on"])
     hexchat.hook_command("fc_setpastebin", set_service_cmd, help="Set which pastebin to use for Floodcontrol. Provide no parameters to see a list of available pastebins. Provide 'default' to set back to default.")
 
