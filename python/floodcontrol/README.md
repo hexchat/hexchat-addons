@@ -106,4 +106,6 @@ You can have multiple "--to-*" arguments. Think: "from board, to inputbox, and t
 
 ## Roadmap
 
-The code is messy (needs to be grouped), and functions have crap names. But it's usable.
+The code is messy (needs to be grouped), and functions have crap names. But it's usable. 
+
+After cleaning up and refining existing functionality, I want to also add features for reading Pastebins inside HexChat, so that a user could type "/fc_read" and the last recognised Pastebin URL in the channel would be retrieved and shown to the user (either in a launched browser, or a few lines inside the HexChat window, or something like that).
