@@ -26,7 +26,10 @@ Might get replaced with:
 /msg Burrito https://example.pastebin/abcd
 ```
 
-These replacements happen automatically if the user tries to send a message which is over a line limit, after pressing Enter again when notified. This line limit is currently hardcoded at 2 lines by ```get_max_lines```.
+These replacements happen automatically if the user tries to send a message which is over a line limit, after pressing Enter again when notified. This line limit is currently hardcoded at 2 lines by ```get_max_lines```. The notification looks like this:
+> **[Floodcontrol]**  That message looks like a flood (11 lines). To really send it, press **Alt+Enter**. To send it through a pastebin, press **Enter** again.
+
+To turn the autopaste functionality off, use the command ```/fc_autopaste off```. To turn it back on, ```/fc_autopaste on```. Providing no on/off parameter will toggle the setting.
 
 ## Pastebin from a command
 
