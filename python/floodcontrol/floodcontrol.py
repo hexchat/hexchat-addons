@@ -50,13 +50,11 @@ except ImportError:
     print("\002[Floodcontrol]\017\t", "xerox not found, we won't be able to use clipboards. https://pypi.python.org/pypi/xerox https://github.com/kennethreitz/xerox")
     HAVE_XEROX = False
 
-__module_name__ = str("Floodcontrol") # Alternative names: Discharge, Flood Tunnel, Storm Drain.
+__module_name__ = str("Floodcontrol")
 __module_version__ = str("0.1")
 __module_description__ = str("Sends your floody messages to a pastebin service and gives you the URL.")
 
 """HexChat plugin for intercepting floody messages from the user, and redirecting them to a pastebin service."""
-
-# IDEA: User could set their own shell command for us to use, we'll send the contents to its stdin.
 
 def get_max_lines():
     # TODO: Should be more for PMs, and less for large channels.
@@ -259,6 +257,9 @@ def set_option_cmd(words, words_eol, userdata, *args):
                 print_fc("{} setting is now: {}".format(option_name, get_option(option_name)))
 
 
+######## Pastebin service functions
+
+
 # Passed to the `pastebins` submodule for use in HTTP requests:
 USER_AGENT = "hexchat-{}/{}".format(__module_name__, __module_version__)
 
@@ -306,7 +307,7 @@ def remove_shellcommand_pastebin_cmd(words, words_eol, *args):
         raise FloodControlError("{} is not a ShellCommandPastebin, cannot remove.".format(apiname))
     print_fc("Shell command Pastebin API added. Name: {}".format(apiname))
 
-# TODO: A context manager or decorator which always returns hexchat.EAT_HEXCHAT even when an exception is raised.
+######## Line counting and floodiness estimation functions
 
 # The following two functions are based on split_up_text in hexchat/src/common/outbound.c.
 def split_up_text(text, maxlen, cmd_length):
@@ -653,6 +654,8 @@ def do_paste(**options): # unknown options are discarded, see PASTECMD_ARGS
     thread.start()
     return thread
 
+######## Inputbox interaction and autopaste functions
+
 @default_returnvalue(hexchat.EAT_HEXCHAT, hexchat.EAT_ALL)
 def inputbox_autopaste_on_limit(*args):
     if len(args) < 4:
@@ -688,10 +691,13 @@ def preprocess_inputbox(inputbox):
         options = get_opts_for_cmd(command, inputbox)
         if options is not None:
             paramcount = options['paramcount']
-            re_cmd_and_msg = r"((?:\S*\s){%s})" % paramcount
+            print_debug("paramcount", paramcount)
+            re_cmd_and_msg = r'^((?:[^\s]*\s){%d}[^\s]*)\s(.*)' % paramcount # http://stackoverflow.com/a/17060122/3143160
 
             # fullcommand here would be "/msg OtherUser" in the example of "/msg OtherUser message"
-            _, fullcommand, message = [word for word in re.split(re_cmd_and_msg, inputbox) if word]
+            split_cmd_and_msg = [word for word in re.split(re_cmd_and_msg, inputbox) if word]
+            fullcommand = split_cmd_and_msg[0]
+            message = inputbox[len(fullcommand)+1:]
             fullcommand.strip()
 
             cmd_length = options['cmdlength']
@@ -718,7 +724,6 @@ def mode(*args):
 def keypress_cb(key, *args):
     # TODO: Split into functions. State information should be held as object attributes?
 
-    #try:
     inputbox = hexchat.get_info("inputbox")
 
     if key == KEYS["enter"] and len(inputbox) > 0:
@@ -749,9 +754,6 @@ def keypress_cb(key, *args):
 
     elif key in (KEYS["alt+enter"], KEYS["altgr+enter"]) or key[-1] != '0':
         mode(0)
-
-    if key in (KEYS["enter"], KEYS["tab"]) and len(inputbox) > 8:
-        pass
 
 def debug_keypress_cb(key, *args):
     print_debug(key)
@@ -791,7 +793,7 @@ def toggle_autopaste(*args):
 # 074 [21:02:15]    File "/home/user/.config/hexchat/addons_wip/floodcontrol/floodcontrol.py", line 801, in toggle_autopaste
 # 074 [21:02:15]      if requested.lower() in v:
 # 074 [21:02:15]  SystemError: ../Objects/longobject.c:426: bad argument to internal function
-    print_debug(requested)
+    print_debug("toggle_autopaste requested", requested)
     if not autopaste_handler and requested.lower() not in bools[False]:
         print_fc("enabling autopaste")
         set_option("autopaste", "on")
