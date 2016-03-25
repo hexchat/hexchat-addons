@@ -126,10 +126,14 @@ class ArgparseException(FloodcontrolError):
 class ArgparseError(ArgparseException):
     pass
 
+class ArgparseHelpMessage(ArgparseException):
+    pass
+
 class ArgparseExit(ArgparseError):
     pass
 
 class NoExitParser(argparse.ArgumentParser):
+    # This is so that argparse doesn't make HexChat exit during help and error messages.
     raise_on_next_fail = False # TODO: override __init__ and put this in there
     def exit(self, *args, **kwargs):
         if self.raise_on_next_fail:
@@ -143,6 +147,15 @@ class NoExitParser(argparse.ArgumentParser):
             raise ArgparseError(args, kwargs)
         else:
             print_debug("(ArgparseError)", args, kwargs)
+    def print_help(self, *args, **kwargs):
+        if self.raise_on_next_fail:
+            self.raise_on_next_fail = False
+            raise ArgparseHelpMessage
+        else:
+            self.print_help_for_real(*args, **kwargs)
+            print_debug("(ArgparseHelpMessage)")
+    def print_help_for_real(self, *args, **kwargs):
+        super(NoExitParser, self).print_help(*args, **kwargs)
 
 ##################
 ##################
@@ -423,14 +436,18 @@ def find_content_in_args(words, words_eol, parser, key_to_watch="content"):
     command_params = words[1:]
     print_debug("command_params", command_params)
     parsed_before = []
+    helpmessage_position = None
     for i in range(len(command_params)):
         to_parse = command_params[:i+1]
         try:
             parser.raise_on_next_fail = True
             parsed, extra = parser.parse_known_args(to_parse)
             parser.raise_on_next_fail = False
+        except ArgparseHelpMessage as e:
+            helpmessage_position = i
+            continue
         except ArgparseException as e:
-            print_debug("e", repr(e))
+            print_debug("ArgparseException:", repr(e))
             continue
         parsed = vars(parsed)
         print_debug("e_parsed", parsed)
@@ -448,9 +465,16 @@ def find_content_in_args(words, words_eol, parser, key_to_watch="content"):
         parsed_before.append(parsed)
 
     print_debug("parsed_before", parsed_before)
-    # No extras found.
+
+    # No extras found at this point.
+
+    if helpmessage_position is not None and len(parsed_before) == 0:
+        parser.print_help_for_real()
+        return None, None
+
     return parsed_before[-1], None
 
+    
 def output_from_argparse(output, parsed_args): # TODO: argparse functions need better name.
     parsed_args = parsed_args.copy()
 
@@ -506,6 +530,9 @@ def get_input_from_argparse(callback, parsed_args):
         else:
             hexchat.hook_timer(20, send_getstr_to_callback, callback)
 
+    elif parsed_args['content']:
+        callback(parsed_args['content'])
+
     else:
         raise FloodcontrolError("Could not get input. Requested source: {}".format(source))
 
@@ -558,15 +585,15 @@ def make_argparser_and_args():
     # IDEA: Paste from file path: -ff /home/user/blah.txt
 
     # Pastebin API options. The interpretation and functionality of these depend completely on the chosen API.
-    # TODO: Custom HelpFormatter for bold and italics in IRC.
+    # IDEA: Custom HelpFormatter for bold and italics in IRC.
 
     bin_api_group = argparser.add_argument_group(title="Pastebin API arguments")
     ba = []
-    ba.append(bin_api_group.add_argument("-p", "--service", default=get_option("service"), help="The name of the pastebin API desired."))
-    ba.append(bin_api_group.add_argument("-n", "--name", default=get_option("name"), help="The name of your paste."))
-    ba.append(bin_api_group.add_argument("-e", "--expiry", default=get_option("expiry"), help="Length of time we should tell the pastebin API to keep the paste."))
-    ba.append(bin_api_group.add_argument("-s", "--syntax", default=get_option("syntax"), help="Try to get the pastebin to use syntax highlighting, e.g. 'python' or 'html'"))
-    ba.append(bin_api_group.add_argument("-x", "--exposure", default=get_option("exposure"), help="Privacy setting for this paste."))
+    ba.append(bin_api_group.add_argument("-p", "--service", default=get_option("service"), help="The name of the pastebin API desired. (default: %(default)s)"))
+    ba.append(bin_api_group.add_argument("-n", "--name", default=get_option("name"), help="The name of your paste. (default: %(default)s)"))
+    ba.append(bin_api_group.add_argument("-e", "--expiry", default=get_option("expiry"), help="Length of time we should tell the pastebin API to keep the paste. (default: %(default)s)"))
+    ba.append(bin_api_group.add_argument("-s", "--syntax", default=get_option("syntax"), help="Try to get the pastebin to use syntax highlighting, e.g. 'python' or 'html'. (default: %(default)s)"))
+    ba.append(bin_api_group.add_argument("-x", "--exposure", default=get_option("exposure"), help="Privacy setting for this paste. (default: %(default)s)"))
 
     # TODO: Make this work:
     #ba.append(bin_api_group.add_argument("-c", "--custom-opt", action="append", help="Custom options to give to the Pastebin API (as strings). For instance, some APIs might be coded to support a maximum read count. Use the syntax \"key=value\" including quotes."))
@@ -610,9 +637,14 @@ def do_paste_cmd(words, words_eol, userdata, *args, **kwargs):
     print_debug("words", words)
     for w in words_eol:
         print_debug("words_eol:", w)
+
     if parsed_args is None:
         parsed_args, content = find_content_in_args(words, words_eol, argparser)
-        parsed_args['content'] = content
+    if parsed_args is None:
+        print_debug("parsed_args is None even after find_content_in_args")
+        return
+    parsed_args['content'] = content
+
     if parsed_args['guard_inputbox_cmd'] and parsed_args['source'] == "inputbox":
         # TODO: could split into separate function and also use in do_paste
         doprocess, message, fullcommand, _ = preprocess_inputbox(ibx.get())
@@ -692,8 +724,8 @@ def preprocess_inputbox(inputbox):
         if options is not None:
             paramcount = options['paramcount']
             print_debug("paramcount", paramcount)
-            re_cmd_and_msg = r'^((?:[^\s]*\s){%d}[^\s]*)\s(.*)' % paramcount # http://stackoverflow.com/a/17060122/3143160
-
+            re_cmd_and_msg = r'^((?:[^\s]*\s){%d}[^\s]*)\s(.*)' % paramcount # by perreal https://stackoverflow.com/a/17060122/3143160
+            # TODO: Test whether multiple spaces in a row matter: /msg    OtherUser testing testing
             # fullcommand here would be "/msg OtherUser" in the example of "/msg OtherUser message"
             split_cmd_and_msg = [word for word in re.split(re_cmd_and_msg, inputbox) if word]
             fullcommand = split_cmd_and_msg[0]
