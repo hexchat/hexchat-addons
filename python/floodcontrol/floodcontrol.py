@@ -146,7 +146,7 @@ class NoExitParser(argparse.ArgumentParser):
             self.raise_on_next_fail = False
             raise ArgparseError(args, kwargs)
         else:
-            print_debug("(ArgparseError)", args, kwargs)
+            print_fc("(ArgparseError)", args, kwargs)
     def print_help(self, *args, **kwargs):
         if self.raise_on_next_fail:
             self.raise_on_next_fail = False
@@ -432,13 +432,16 @@ def find_content_in_args(words, words_eol, parser, key_to_watch="content"):
     # "content to paste goes -- here", also parsing out any quoted statements
     # which we needed to have raw.
 
-    # TODO: binary search might be faster
+    # What we actually do is parse an ever-increasing part of the args until we
+    # find an arg we don't recognise. At this point, it is assumed the rest
+    # of the arguments are content to paste (called 'extra' in this function).
+
     command_params = words[1:]
-    print_debug("command_params", command_params)
     parsed_before = []
     helpmessage_position = None
     for i in range(len(command_params)):
         to_parse = command_params[:i+1]
+        print_debug("command_params to_parse", to_parse)
         try:
             parser.raise_on_next_fail = True
             parsed, extra = parser.parse_known_args(to_parse)
@@ -474,7 +477,7 @@ def find_content_in_args(words, words_eol, parser, key_to_watch="content"):
 
     return parsed_before[-1], None
 
-    
+
 def output_from_argparse(output, parsed_args): # TODO: argparse functions need better name.
     parsed_args = parsed_args.copy()
 
@@ -724,8 +727,7 @@ def preprocess_inputbox(inputbox):
         if options is not None:
             paramcount = options['paramcount']
             print_debug("paramcount", paramcount)
-            re_cmd_and_msg = r'^((?:[^\s]*\s){%d}[^\s]*)\s(.*)' % paramcount # by perreal https://stackoverflow.com/a/17060122/3143160
-            # TODO: Test whether multiple spaces in a row matter: /msg    OtherUser testing testing
+            re_cmd_and_msg = r'^((?:[^\s]*\s*){%d}[^\s]*)\s(.*)' % paramcount # by perreal https://stackoverflow.com/a/17060122/3143160
             # fullcommand here would be "/msg OtherUser" in the example of "/msg OtherUser message"
             split_cmd_and_msg = [word for word in re.split(re_cmd_and_msg, inputbox) if word]
             fullcommand = split_cmd_and_msg[0]
