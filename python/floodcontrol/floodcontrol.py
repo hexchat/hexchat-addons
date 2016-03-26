@@ -187,13 +187,12 @@ def set_option(key, value):
     make_argparser_and_args_after_config()
 
 def get_option(key):
-    default = default_config.get(key)
-    if default is not None:
-        return default
+    hkey = "{}_{}".format(__module_name__, key)
+    configsetting = hexchat.get_pluginpref(hkey)
+    if configsetting is not None:
+        return configsetting
     else:
-        hkey = "{}_{}".format(__module_name__, key)
-
-        return hexchat.get_pluginpref(hkey)
+        return default_config.get(key)
 
 def del_option(key):
     hkey = "{}_{}".format(__module_name__, key)
@@ -732,7 +731,7 @@ def preprocess_inputbox(inputbox):
             split_cmd_and_msg = [word for word in re.split(re_cmd_and_msg, inputbox) if word]
             fullcommand = split_cmd_and_msg[0]
             message = inputbox[len(fullcommand)+1:]
-            fullcommand.strip()
+            fullcommand = fullcommand.strip()
 
             cmd_length = options['cmdlength']
             return True, message, fullcommand, cmd_length
@@ -767,7 +766,7 @@ def keypress_cb(key, *args):
         else:
             print_debug(doprocess, message, fullcommand, sep="|")
         if doprocess:
-            # "doprocess" here means that we can understand what we need to
+            # boolean "doprocess" here means that we can understand what we need to
             # extract from the inputbox, and how to send the replacement.
             nlines, approx = linecount(message, cmd_length)
             nprefix = "~" * approx
@@ -786,7 +785,7 @@ def keypress_cb(key, *args):
                 return hexchat.EAT_NONE
 
 
-    elif key in (KEYS["alt+enter"], KEYS["altgr+enter"]) or key[-1] != '0':
+    elif key in (KEYS["alt+enter"], KEYS["altgr+enter"]) or key[-1] != '0': # key[-1] is the key's character length
         mode(0)
 
 def debug_keypress_cb(key, *args):
@@ -815,24 +814,16 @@ def toggle_autopaste(*args):
     words = args[0]
     bools = {True: ("1", "on", "true", "t"), False: ("0", "off", "false", "f")}
     try:
-        requested = words[1]
-    except IndexError: # oh god
+        requested = words[1].lower()
+    except IndexError:
         requested = ""
 
-# TODO
-# /fc_autopaste off
-# 074 [21:02:11] [Floodcontrol]  disabling autopaste
-# /fc_autopaste off
-# 074 [21:02:15]  Traceback (most recent call last):
-# 074 [21:02:15]    File "/home/user/.config/hexchat/addons_wip/floodcontrol/floodcontrol.py", line 801, in toggle_autopaste
-# 074 [21:02:15]      if requested.lower() in v:
-# 074 [21:02:15]  SystemError: ../Objects/longobject.c:426: bad argument to internal function
     print_debug("toggle_autopaste requested", requested)
-    if not autopaste_handler and requested.lower() not in bools[False]:
+    if not autopaste_handler and requested not in bools[False]:
         print_fc("enabling autopaste")
         set_option("autopaste", "on")
         autopaste_handler = hexchat.hook_print("Key Press", keypress_cb)
-    elif requested.lower() not in bools[True]:
+    elif autopaste_handler and requested not in bools[True]:
         print_fc("disabling autopaste")
         set_option("autopaste", "off")
         hexchat.unhook(autopaste_handler)
@@ -842,7 +833,7 @@ if __name__ == "__main__":
 
     hexchat.hook_command("fc_debug", toggle_debug, help="Toggle debug messages on/off for Floodcontrol.")
 
-    hexchat.hook_command("fc_autopaste", toggle_autopaste, help="Toggle autopaste on/off. Autopaste will notify you to confirm sending your floody message to the pastebin service automatically when you try to send it.")
+    hexchat.hook_command("fc_autopaste", toggle_autopaste, help="Usage: fc_autopaste [on|off]\nToggle autopaste on/off. Autopaste will notify you to confirm sending your floody message to the pastebin service automatically when you try to send it.")
     toggle_autopaste(["", get_option("autopaste")])
     hexchat.hook_command("fc_setpastebin", set_service_cmd, help="Set which pastebin to use for Floodcontrol. Provide no parameters to see a list of available pastebins. Provide 'default' to set back to default.")
 
