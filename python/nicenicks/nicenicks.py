@@ -33,7 +33,7 @@
 from __future__ import print_function
 
 __module_name__ = "nicenicks"
-__module_version__ = "0.075"
+__module_version__ = "0.076"
 __module_description__ = "Sweet-ass nick colouring."
 
 from collections import defaultdict
@@ -217,7 +217,7 @@ def setcolor_command(word, word_eol, userdata):
             dmsg("Saving permacolortable...")
 
             try:
-                f = open(datafile, "w")
+                f = open(datafile, "wb")
                 pickle.dump(permacolortable, f)
                 f.close()
             except BaseException as e:
