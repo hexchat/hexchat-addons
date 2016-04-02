@@ -2,12 +2,12 @@
 ## Nice Nicks, version <whatever it says down there>
 ## maintained by BurritoBazooka (burritobazooka@googlemail.com)
 ## authored by Chris Gahan (chris@ill-logic.com), licensed under the WTFPL version 2.
-## 
+##
 ## What is this?
 ##   This is an X-Chat script written in python which colourizes all the nicks in a channel.
 ##   It will check if you've got nick colouring enabled in X-Chat when it starts up, but you
-##   can enable/disable it with the /NICENICKS command. It's better than the built-in colouring 
-##   system because that one frqeuently assigns two people in a channel the same colour when 
+##   can enable/disable it with the /NICENICKS command. It's better than the built-in colouring
+##   system because that one frqeuently assigns two people in a channel the same colour when
 ##   there are still MANY unused colours.
 ##
 ## Type /HELP NICENICKS for usage info.
@@ -16,7 +16,7 @@
 ##   + Colourize nicks based on least-recently-used colour. (When a user who has no colour starts
 ##     talking, it picks the colour that hasn't been used in the longest time.)
 ##   + Assign specific colours to specific nicks. This steals colours from other users. ;)
-## 
+##
 ## Features to add: (+ = new cool thing, * = bugfix, - = something else)
 ##   + if nicks are similar length, capitalized the same, or start with same letter, assign them
 ##     different colours. also, if nicks are totally different lengths, capitalization, letters
@@ -29,6 +29,16 @@
 ##   + XChat compatibility. Currently when trying to port this script back to XChat, strange
 ##     behaviour was encountered where a caught event would be treated normally anyway, even
 ##     though our callback returned EAT_XCHAT or EAT_ALL. I don't know how to solve that.
+##
+##      --------------------------[amigadude changes]------------------------------
+##      changed file modes to binary (wb & rb) near the pickle calls
+##      changed has_key to in (python3 - "if permacolortable.has_key(nick):" becomes
+##                              "if nick in permacolortable:")
+##      altered default table as 11 & 12 look too similar to be next to each other IMHO
+##      added a few debug lines when I was trying to work out what I broke changing has_key to in
+##      messed with the chancolortable dictionary - was [net, chan] now [net][chan]
+##      added a display of the current default table as the script starts
+##      added nick = nick.lower() in get_color so the in works. has_key not case sensitive?
 
 from __future__ import print_function
 
@@ -48,12 +58,11 @@ if hexchat.get_prefs('text_color_nicks') == 1: # if user has enabled the
     nicenicks_enabled = True
 else:
     nicenicks_enabled = False
-    
 debug_enabled = False
 
-# You can edit the following default colour table if you want the program to use fewer colours 
+# You can edit the following default colour table if you want the program to use fewer colours
 # (or more colours -- I left out all the ugly ones. :) The last colour in the table gets used first.
-defaultcolortable = [ (11, None), (12, None), (13, None), (7, None), (8, None), (9, None), (10, None), (3, None), (4, None), (6, None), (14, None), (15, None) ]
+defaultcolortable = [ (11, None), (4, None), (13, None), (7, None), (8, None), (9, None), (10, None), (3, None), (12, None), (6, None), (14, None), (15, None) ]
 
 chancolortable = {}
 permacolortable = {}
@@ -109,24 +118,25 @@ def get_color(ctable, nick):
     global permacolortable
 
     color = None
-    
+    nick = nick.lower()
+
     # permanent colour
-    if permacolortable.has_key(nick):
+    if nick in permacolortable:
         pcolor = permacolortable[nick]
+        dmsg('In permacolortable')
     else:
+        dmsg('%s not in permacolortable: %s' % (nick, permacolortable))
         pcolor = None
 
     # iterate backwards through ctable
     for i in range(len(ctable)-1,-1,-1):
         c, n = ctable[i]
-        
         if pcolor != None and c == pcolor: # if we found this nick's permcolor
             # steal the color from whoever's using it
             ctable.pop(i)
             ctable.append((c, nick))
             dmsg("1: " + str(c) + " " + nick)
             return c
-            
         elif n == nick:
             color = c
             if pcolor != None and c != pcolor: # if this nick has a color in the table different from its permacolor
@@ -151,7 +161,6 @@ def get_color(ctable, nick):
         dmsg("A new entry was added to this colortable: " + nick + " -> " + str(c), "GETCOLOR")
     dmsg("Resultant color: " + str(color), "GETCOLOR")
     return color
-    
 
 ######## XCHAT CALLBACKS ########
 
@@ -174,23 +183,20 @@ def setcolor_command(word, word_eol, userdata):
         items = permacolortable.items()
         if len(items) > 0:
             # print perma-color table
-            
             omsg("These are the current permanent colour mappings:", "PERMA-COLORS")
-    
             for name, color in items:
                 jprint("\t   ", col(color), name, " = ", col(11), str(color), ecs("o"))
             omsg("To remove a user from this list, type /setcolor -nick", "NOTE")
 
         else:
             omsg("No nick colour mappings assigned. Type /HELP SETCOLOR for more info.", "PERMA-COLORS")
-        
         return hexchat.EAT_ALL
 
     nick = word[1].lower() # get lowercase nick
 
     if nick[0] == "-": # remove the nick!
         nick = nick[1:] # get rid of that - at the beginning
-        if permacolortable.has_key(nick):
+        if nick in permacolortable:
             permacolortable.pop(nick)
             omsg("Removed "+nick+" from color table", "BALEETED")
         else:
@@ -199,7 +205,7 @@ def setcolor_command(word, word_eol, userdata):
         return hexchat.EAT_ALL
 
     if paramcount == 1: # just the nick was supplied
-        if permacolortable.has_key(nick):
+        if nick in permacolortable:
             color = permacolortable.get(nick)
             omsg(col(color) + nick + ecs("o") + " is color " + str(color), "INFO")
         else:
@@ -269,7 +275,6 @@ def nicedebug_command(word, word_eol, userdata):
 
 def nicenicks_dump_command(word, word_eol, userdata):
     "Display nick associations for all channels"
-    
     omsg("DUMP:\t", "Nicenicks dump", prefix="")
     print(chancolortable)
     return hexchat.EAT_ALL
@@ -298,17 +303,24 @@ def message_callback(word, word_eol, userdata, attributes):
 
         chan = hexchat.get_info("channel")
         net = hexchat.get_info("network")
-        if not chancolortable.has_key((net, chan)):
+        if net not in chancolortable:
+            # create an empty network entry
+            dmsg("Making new network "+net, "COLORTABLE")
+            chancolortable[net] = {}
+            dmsg("chancolortable: %s" % (chancolortable))
+        if chan not in chancolortable[net]:
             # make new color table
             dmsg("Making new color table for "+chan, "COLORTABLE")
-            chancolortable[net, chan] = defaultcolortable[:]
+            chancolortable[net][chan] = defaultcolortable[:]
+            dmsg("chancolortable: %s" % (chancolortable))
         else:
-            dmsg("Found COLORTABLE of length "+str(len(chancolortable[net, chan]))+" for channel "+chan+" on network "+net, "COLORTABLE")
-        ctable = chancolortable[net, chan]
+            dmsg("Found COLORTABLE of length "+str(len(chancolortable[net][chan]))+" for channel "+chan+" on network "+net, "COLORTABLE")
+        ctable = chancolortable[net][chan]
         dmsg("COLORTABLE for "+chan+" on "+net+" = " + str(ctable), "COLORTABLE")
         color = get_color(ctable, nick)
         newnick = ecs('o') + col(color) + nick
         word[0] = newnick
+        dmsg('Old nick: %s - New Nick: %s' % (nick, newnick))
         hexchat.emit_print(event_name, *word, time=attributes.time)
         return hexchat.EAT_ALL
     else:
@@ -318,7 +330,7 @@ def message_callback(word, word_eol, userdata, attributes):
 ########## HOOK IT UP ###########
 
 try:
-    permacolortable = pickle.load(open(datafile))
+    permacolortable = pickle.load(open(datafile,"rb"))
 except:
     pass
 
@@ -332,3 +344,7 @@ hexchat.hook_command("COLORTABLE", color_table_command)
 hexchat.hook_command("NICENICKS_DUMP", nicenicks_dump_command, None, hexchat.PRI_NORM, "Usage:\t/NICENICKS_DUMP to dump all the nick colours for all active channels")
 
 omsg("Nicenicks version {} loaded!".format(__module_version__))
+defctable = 'Default colour table:'
+for c, n in defaultcolortable:
+    defctable = '{0} \003{1:02d}{1:02d}'.format(defctable,c)
+omsg(defctable)
