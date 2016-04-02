@@ -30,20 +30,11 @@
 ##     behaviour was encountered where a caught event would be treated normally anyway, even
 ##     though our callback returned EAT_XCHAT or EAT_ALL. I don't know how to solve that.
 ##
-##      --------------------------[amigadude changes]------------------------------
-##      changed file modes to binary (wb & rb) near the pickle calls
-##      changed has_key to in (python3 - "if permacolortable.has_key(nick):" becomes
-##                              "if nick in permacolortable:")
-##      altered default table as 11 & 12 look too similar to be next to each other IMHO
-##      added a few debug lines when I was trying to work out what I broke changing has_key to in
-##      messed with the chancolortable dictionary - was [net, chan] now [net][chan]
-##      added a display of the current default table as the script starts
-##      added nick = nick.lower() in get_color so the in works. has_key not case sensitive?
-
+# TODO: switch from pickle to json, and use hexchat.set_pluginpref
 from __future__ import print_function
 
 __module_name__ = "nicenicks"
-__module_version__ = "0.076"
+__module_version__ = "0.08"
 __module_description__ = "Sweet-ass nick colouring."
 
 from collections import defaultdict
