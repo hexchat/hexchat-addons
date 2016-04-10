@@ -2,7 +2,7 @@ from __future__ import unicode_literals, print_function
 # ONoticeFormat for HexChat
 # Original tcl version opvoice 0.2 by Sodoma and fixed by lizardo 2014
 # Ported from tcl to Python & HexChat by sacarasc, 2016, License: Unlicense
-# Additions by BurritoBazooka
+# Maintained by BurritoBazooka
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -95,6 +95,7 @@ def setcolor_by_name_cmd(w, weol, userdata):
         if w[2].lower() == "default":
             if colorname in colorpairs:
                 del colorpairs[colorname]
+                save_colorpairs()
                 print("Color {} made default.".format(colorname))
             else:
                 print("Color {} already default.".format(colorname))
