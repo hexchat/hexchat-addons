@@ -22,7 +22,7 @@ from string import ascii_letters, digits
 
 __module_name__ = str("ONoticeFormat")
 __module_author__ = str("sacarasc")
-__module_version__ = str("1.3.5")
+__module_version__ = str("1.3.6")
 __module_description__ = str("Formats some of them there ONotices")
 
 C_RESET = "\017"
@@ -126,20 +126,26 @@ def delname_cmd(word, word_eol, userdata):
     return hexchat.EAT_ALL
 
 def noticeformat_cmd(w, weol, userdata):
-    chan = hexchat.get_info("channel")
-    blank_msg1, prefix = userdata
+    if len(w) > 1:
+        chan = hexchat.get_info("channel")
+        blank_msg1, prefix = userdata
 
-    msg1 = blank_msg1.format(getname())
-    msg2 = time.strftime("%H:%M")
-    ccode1 = colorcode_by_name(w[0])
-    ccode2 = colorcode_by_name("_time")
+        msg1 = blank_msg1.format(getname())
+        msg2 = time.strftime("%H:%M")
+        ccode1 = colorcode_by_name(w[0])
+        ccode2 = colorcode_by_name("_time")
 
-    hexchat.command("notice {1} {2}{3}{0} {4}{5}{0} {6}".format(C_RESET, "@"+chan, ccode1, msg1, ccode2, msg2, weol[1]))
+        hexchat.command("notice {1} {2}{3}{0} {4}{5}{0} {6}".format(C_RESET, "@"+chan, ccode1, msg1, ccode2, msg2, weol[1]))
+    else:
+        print("Provide a message. Usage: {} <message>".format(w[0]))
 
     return hexchat.EAT_HEXCHAT
 
-def no_cmd(w, weol, userdata):
-    hexchat.command("notice " + weol[1])
+def alias_cmd(w, weol, userdata):
+    if len(weol) > 1:
+        hexchat.command("notice " + weol[1])
+    else:
+        hexchat.command("notice")
     return hexchat.EAT_HEXCHAT
 
 hexchat.hook_command("o", noticeformat_cmd, userdata=("{} to o", "@"), help="Send a notice to channel operators. Usage: O <message>")
