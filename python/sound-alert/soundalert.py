@@ -2,7 +2,7 @@ import hexchat, sys, os, random
 from threading import Thread
 
 __module_name__ = "Sound Alert" 
-__module_version__ = "4.4.1"
+__module_version__ = "4.4.4"
 __module_description__ = "Plays a random sound on alert from Hexchat/share/sounds \
 by default or the directory specified by \"/soundalert set my_sounds/directory\""
 
@@ -46,6 +46,8 @@ class SoundAlert():
         
         if os.path.isdir(word_eol[2]):
           hexchat.set_pluginpref("soundalert_dir", word_eol[2])
+          self.sound_directory = self.find_sound_directory()
+          self.file_list = self.find_sounds()
 
         else:
           hexchat.prnt("Not a valid directory.")
@@ -60,6 +62,7 @@ class SoundAlert():
         hexchat.prnt("Currently set sound directory: {}".format(hexchat.get_pluginpref("soundalert_dir")))
 
       elif word[1] == "test":
+        self.debug = True
         self.spawn(None, None, None)
 
       else:
@@ -82,7 +85,7 @@ class SoundAlert():
 
     else:
       if os.name == "nt":
-        paths = ["C:\\Program Files\\HexChat\\share\\sounds", "C:\\Program Files (x86)\\HexChat\\share\\sounds", "%appdata%\\HexChat\\sounds"]
+        paths = ["C:\\Program Files\\HexChat\\share\\sounds", "C:\\Program Files (x86)\\HexChat\\share\\sounds", os.path.join(os.getenv('appdata'), "HexChat\\sounds")]
 
       elif os.name == "posix":
         paths = ["/sbin/HexChat/share/sounds", "/usr/sbin/HexChat/share/sounds", "/usr/local/bin/HexChat/share/sounds"]
@@ -106,7 +109,8 @@ class SoundAlert():
 
     for root, dirs, files in os.walk("./"):
       for sound_file in files:
-        file_list.append(sound_file)
+        path = os.path.join(os.path.normpath(root), sound_file)
+        file_list.append(path)
     
     return file_list
 
@@ -114,8 +118,12 @@ class SoundAlert():
     sound = random.choice(self.file_list)
     active = hexchat.get_pluginpref("soundalert_active")
 
-    if not active:
-      return
+    if self.debug == True:
+      hexchat.prnt("Playing: {}".format(sound))
+
+    else:
+      if not active:
+        return
 
     if sound == False:
       hexchat.prnt("Could not find default share/sounds directory, and no sounds directory is specified. See /help soundalert.")
@@ -129,6 +137,7 @@ class SoundAlert():
       stream.open(sound)
       stream.Play()
 
+    self.debug = False
     return True
 
   def spawn(self, word, word_eol, userdata):
