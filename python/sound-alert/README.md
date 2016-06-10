@@ -26,5 +26,7 @@ Optional TF2 Taunts available [here](http://github.com/captain-lightning/Sound-A
 
 ### Usage
 - ```/soundalert set <path>``` -- Specifies a directory to play sounds from.
-- ```/alertson``` -- Turns on alerts. Enabled by default.
-- ```/alertsoff``` -- Disables alerts until re-enabled.
+- ```/soundalert get``` -- Display currently set sound path.
+- ```/soundalert on``` -- Turns on alerts. Enabled by default.
+- ```/soundalert off``` -- Disables alerts until re-enabled.
+- ```/soundalert test``` -- Play a sound from the currently set sound path.

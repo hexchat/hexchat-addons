@@ -2,7 +2,7 @@ import hexchat, sys, os, random
 from threading import Thread
 
 __module_name__ = "Sound Alert" 
-__module_version__ = "4.0"
+__module_version__ = "4.4"
 __module_description__ = "Plays a random sound on alert from Hexchat/share/sounds \
 by default or the directory specified by \"/soundalert set my_sounds/directory\""
 
@@ -33,23 +33,55 @@ class SoundAlert():
       hexchat.set_pluginpref("soundalert_active", True)
 
     if hexchat.get_pluginpref("soundalert_active") == False:
-      hexchat.prnt("Alerts are currently disabled. Re-enable them with /alertson")
+      hexchat.prnt("Alerts are currently disabled. Re-enable them with /soundalert on")
 
-  def disable(self, word, word_eol, userdata):
-    hexchat.prnt("Sound alerts will now be off until you enable them again with /alertson.")
+  def commands(self, word, word_eol, userdata):
+    if len(word) < 2:
+      hexchat.prnt("Not enough arguments given. See /help soundalert")
+    
+    else:      
+      if word[1] == "set":
+        if len(word) < 3:
+          hexchat.prnt("No directory specified.")
+        
+        if os.path.isdir(word_eol[2]):
+          hexchat.set_pluginpref("soundalert_dir", word_eol[2])
+
+        else:
+          hexchat.prnt("Not a valid directory.")
+
+      elif word[1] == "on":
+        self.enable()
+
+      elif word[1] == "off":
+        self.disable()
+
+      elif word[1] == "get":
+        hexchat.prnt("Currently set sound directory: {}".format(hexchat.get_pluginpref("soundalert_dir")))
+
+      elif word[1] == "test":
+        self.spawn(None, None, None)
+
+      else:
+        hexchat.prnt("No such command exists.")
+
+    return hexchat.EAT_ALL
+
+  def disable(self):
+    hexchat.prnt("Sound alerts will now be off until you enable them again with /soundalert on.")
     hexchat.set_pluginpref("soundalert_active", False)
 
-  def enable(self, word, word_eol, userdata):
+  def enable(self):
     hexchat.prnt("Sound alerts are now on.")
     hexchat.set_pluginpref("soundalert_active", True)
 
   def find_sound_directory(self):
-    if hexchat.get_pluginpref("soundalert_dir") != None:
+    if os.path.isdir(hexchat.get_pluginpref("soundalert_dir")):
       return hexchat.get_pluginpref("soundalert_dir")
 
     else:
       if os.name == "nt":
-        paths = ["C:\Program Files\HexChat\share\sounds", "C:\Program Files (x86)\HexChat\share\sounds", "%appdata%\HexChat\sounds"]
+        paths = ["C:\\Program Files\\HexChat\\share\\sounds", "C:\\Program Files (x86)\\HexChat\\share\\sounds", "%appdata%\\HexChat\\sounds"]
 
       elif os.name == "posix":
         paths = ["/sbin/HexChat/share/sounds", "/usr/sbin/HexChat/share/sounds", "/usr/local/bin/HexChat/share/sounds"]
@@ -65,7 +97,7 @@ class SoundAlert():
       return False
 
   def find_sounds(self):
-    if self.sound_directory == False:
+    if not self.sound_directory:
       return False
 
     os.chdir(self.sound_directory)
@@ -82,7 +114,7 @@ class SoundAlert():
     active = hexchat.get_pluginpref("soundalert_active")
 
     if not active:
-      return False
+      return
 
     if sound == False:
       hexchat.prnt("Could not find default share/sounds directory, and no sounds directory is specified. See /help soundalert.")
@@ -96,19 +128,7 @@ class SoundAlert():
       stream.open(sound)
       stream.Play()
 
-  def set_options(self, word, word_eol, userdata):
-    if len(word) < 3:
-      hexchat.prnt("Not enough arguments given. See /help soundalert")
-
-    else:
-      if word[1] == "set":
-        if os.path.isdir(word_eol[1]):
-          hexchat.set_pluginpref("soundalert_dir", word_eol[1])
-
-        else:
-          hexchat.prnt("Not a valid directory.")
-
-    return hexchat.EAT_ALL
+    return True
 
   def spawn(self, word, word_eol, userdata):
     do_thread = Thread(target=self.play_sound)
@@ -116,9 +136,7 @@ class SoundAlert():
 
 alert = SoundAlert()
 
-hexchat.hook_command("soundalert", alert.set_options, help="/soundalert set <directory> -- Sets a directory for Sound Alert to pull sounds from.")
-hexchat.hook_command("alertson", alert.enable, help="Turns on soundalert alerts.")
-hexchat.hook_command("alertsoff", alert.disable, help="Turns off soundalert alerts.")
+hexchat.hook_command("soundalert", alert.commands, help="/soundalert set <directory> -- Sets a directory for Sound Alert to pull sounds from.\n/soundalert get -- Debug command, displays the currently set sound directory.\n/soundalert on -- Enables sounds when highlighted.\n/soundalert off -- Disables sounds when highlighted.\n/soundalert test -- Plays a sound from the set or default sound directory.")
 hexchat.hook_print("Channel Action Hilight", alert.spawn)
 hexchat.hook_print("Channel Msg Hilight", alert.spawn)
 hexchat.hook_print("Private Message", alert.spawn)
