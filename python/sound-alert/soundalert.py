@@ -2,7 +2,7 @@ import hexchat, sys, os, random
 from threading import Thread
 
 __module_name__ = "Sound Alert" 
-__module_version__ = "4.4.4"
+__module_version__ = "4.5.0"
 __module_description__ = "Plays a random sound on alert from Hexchat/share/sounds \
 by default or the directory specified by \"/soundalert set my_sounds/directory\""
 
@@ -26,6 +26,7 @@ class SoundAlert():
   def __init__(self):
     hexchat.prnt("Sound Alert plugin loaded.")
 
+    self.debug = False
     self.sound_directory = self.find_sound_directory()
     self.file_list = self.find_sounds()
 
@@ -119,7 +120,7 @@ class SoundAlert():
     active = hexchat.get_pluginpref("soundalert_active")
 
     if self.debug == True:
-      hexchat.prnt("Playing: {}".format(sound))
+      hexchat.prnt("Playing: {}".format(os.path.abspath(sound)))
 
     else:
       if not active:
@@ -141,6 +142,9 @@ class SoundAlert():
     return True
 
   def spawn(self, word, word_eol, userdata):
+    if os.getcwd() is not self.sound_directory:
+      os.chdir(self.sound_directory)
+      
     do_thread = Thread(target=self.play_sound)
     do_thread.start()
 
