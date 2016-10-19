@@ -2,7 +2,7 @@ EasyWinampControl 1.3.9
 =======================
 
 Forked from <http://easywinampcontrol.mandragor.org/>, and then from <https://github.com/KevinLi/EasyWinampControl>
-Licensed under the [GNU Lesser General Public License (LGPL)](http://www.gnu.org/licenses/lgpl.html)
+Licensed under the [GNU Lesser General Public License (LGPL)](https://www.gnu.org/licenses/lgpl.html)
 
 What's new
 ----------
@@ -47,8 +47,8 @@ Version 1.3
 Download
 --------
 
-* [Version 1.3.9 (32bit)](http://dl.hexchat.net/addons/hexchat_winampctrl_x86.dll)  
-* [Version 1.3.9 (64bit)](http://dl.hexchat.net/addons/hexchat_winampctrl_x64.dll)  
+* [Version 1.3.9 (32-bit)](https://dl.hexchat.net/addons/hexchat_winampctrl_x86.dll)  
+* [Version 1.3.9 (64-bit)](https://dl.hexchat.net/addons/hexchat_winampctrl_x64.dll)  
 
 Installation
 ------------
