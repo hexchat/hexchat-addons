@@ -9,7 +9,10 @@ __module_name__ = 'msg-notice-redirection'
 __module_version__ = '0.1'
 __module_description__ = 'redirect chanserv notices to the channel and messages, other notices to a query'
 
+last_context_name = None
+
 def recv_notice_cb(word, word_eol, userdata):
+	global last_context_name
 	context_name = None
 	nick = word[0][1:].split('!')[0]
 	to = word[2]
@@ -18,6 +21,10 @@ def recv_notice_cb(word, word_eol, userdata):
 	if nick == 'ChanServ':
 		if word[3].startswith(':[#') and word[3].endswith(']'):
 			context_name = word[3][2:-1]
+		elif word_eol[3].startswith(':Deopped you on channel ') and word_eol[3].endswith(' because it is registered with channel services'):
+			context_name = hexchat.strip(word[7])
+		elif word_eol[3] == ':and you are not a CHANOP on its access list.':
+			context_name = last_context_name
 	if not context_name:
 		context_name = nick
 	if context_name:
@@ -30,6 +37,9 @@ def recv_notice_cb(word, word_eol, userdata):
 			context = hexchat.find_context(server=hexchat.get_info('server'), channel=context_name)
 		if context:
 			context.set()
+			last_context_name = context_name
+		else:
+			last_context_name = None
 
 def send_notice_cb(word, word_eol, userdata):
 	global send_notice_hook
