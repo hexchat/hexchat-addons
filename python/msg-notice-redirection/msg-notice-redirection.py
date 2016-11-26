@@ -15,7 +15,7 @@ def recv_notice_cb(word, word_eol, userdata):
 	if to.startswith('#'):
 		return hexchat.EAT_NONE
 	if nick == 'ChanServ' and word[3].startswith(':[#') and word[3].endswith(']'):
-		channel = word[3][3:-1]
+		channel = word[3][2:-1]
 		context = hexchat.find_context(server=hexchat.get_info('server'), channel=channel)
 		if context:
 			context.set()
