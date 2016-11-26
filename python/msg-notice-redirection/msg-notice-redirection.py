@@ -5,7 +5,7 @@
 
 import hexchat
 
-__module_name__ = 'redirection'
+__module_name__ = 'msg-notice-redirection'
 __module_version__ = '0.1'
 __module_description__ = 'redirect chanserv notices to the channel and messages, other notices to a query'
 
