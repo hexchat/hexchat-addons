@@ -10,23 +10,24 @@ __module_version__ = '0.1'
 __module_description__ = 'redirect chanserv notices to the channel and messages, other notices to a query'
 
 def recv_notice_cb(word, word_eol, userdata):
+	context_name = None
 	nick = word[0][1:].split('!')[0]
 	to = word[2]
 	if to.startswith('#'):
 		return hexchat.EAT_NONE
-	if nick == 'ChanServ' and word[3].startswith(':[#') and word[3].endswith(']'):
-		channel = word[3][2:-1]
-		context = hexchat.find_context(server=hexchat.get_info('server'), channel=channel)
-		if context:
-			context.set()
-	else:
-		context = hexchat.find_context(server=hexchat.get_info('server'), channel=nick)
+	if nick == 'ChanServ':
+		if word[3].startswith(':[#') and word[3].endswith(']'):
+			context_name = word[3][2:-1]
+	if not context_name:
+		context_name = nick
+	if context_name:
+		context = hexchat.find_context(server=hexchat.get_info('server'), channel=context_name)
 		if not context:
-			if nick.startswith('#'):
+			if context_name.startswith('#'):
 				return hexchat.EAT_NONE
 			else:
-				hexchat.command('QUERY -nofocus %s' % nick)
-			context = hexchat.find_context(server=hexchat.get_info('server'), channel=nick)
+				hexchat.command('QUERY -nofocus %s' % context_name)
+			context = hexchat.find_context(server=hexchat.get_info('server'), channel=context_name)
 		if context:
 			context.set()
 
