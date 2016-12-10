@@ -21,6 +21,8 @@ def recv_notice_cb(word, word_eol, userdata):
 	if nick == 'ChanServ':
 		if word[3].startswith(':[#') and word[3].endswith(']'):
 			context_name = word[3][2:-1]
+		elif word[3].startswith(':+[#') and word[3].endswith(']'):
+			context_name = word[3][3:-1]
 		elif word_eol[3].startswith(':Deopped you on channel ') and word_eol[3].endswith(' because it is registered with channel services'):
 			context_name = hexchat.strip(word[7])
 		elif word_eol[3] == ':and you are not a CHANOP on its access list.':
