@@ -34,7 +34,7 @@
 from __future__ import print_function
 
 __module_name__ = "nicenicks"
-__module_version__ = "0.08"
+__module_version__ = "0.081"
 __module_description__ = "Sweet-ass nick colouring."
 
 from collections import defaultdict
@@ -313,6 +313,7 @@ def message_callback(word, word_eol, userdata, attributes):
         word[0] = newnick
         dmsg('Old nick: %s - New Nick: %s' % (nick, newnick))
         hexchat.emit_print(event_name, *word, time=attributes.time)
+        hexchat.command("gui color 2") # required since HexChat 2.12.4
         return hexchat.EAT_ALL
     else:
         return hexchat.EAT_NONE
