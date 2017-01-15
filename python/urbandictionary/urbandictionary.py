@@ -1,8 +1,8 @@
-""""
+"""
 	Usage: /ud <word>
 	Creator: x13machine <https://github.com/x13machine>
 	License: WTFPL <http://www.wtfpl.net/>
-""""
+"""
 __module_name__ = "Urban Dictionary"
 __module_version__ = "1.0"
 __module_description__ = "Gets the Urban Dictionary"
