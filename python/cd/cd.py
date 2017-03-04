@@ -557,7 +557,7 @@ def command(w, we, u):
 hexchat.hook_server("311", WhoisPromise.handler311)
 hexchat.hook_server("330", WhoisPromise.handler330)
 hexchat.hook_server("318", WhoisPromise.handler318)
-for numeric in ("276", "307", "310", "312", "313", "316", "317", "318", "319", "320", "330", "335", "337", "338", "378", "379", "671"):
+for numeric in ("276", "307", "310", "312", "313", "316", "317", "319", "320", "335", "337", "338", "378", "379", "671"):
     hexchat.hook_server(numeric, WhoisPromise.ignoreIfQueued)
 hexchat.hook_server("MODE", ChanServPromise.handlerMODE)
 hexchat.hook_server("NOTICE", ChanServPromise.handlerNOTICE)
