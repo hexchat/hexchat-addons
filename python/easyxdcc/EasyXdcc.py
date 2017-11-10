@@ -180,7 +180,7 @@ def get_bot_current_chan(bot_name):
     serv = xchat.get_info("host");
     chan = xchat.get_info("channel");
     if serv is None or chan is None:
-        print "Not Connected!"
+        print("Not Connected!")
         return xchat.EAT_ALL
     bot = queue.search(bot_name, chan, serv)
     if bot is None:
@@ -195,64 +195,64 @@ def search_bot_current_chan(bot_name):
     serv = xchat.get_info("host");
     chan = xchat.get_info("channel");
     if serv is None or chan is None:
-        print "Not Connected!"
+        print("Not Connected!")
         return xchat.EAT_ALL
     return queue.search(bot_name, chan, serv)
 
 def help():
-    print ""
-    print "*****************************"
-    print "*     EasyXdcc Commands     *"
-    print "*****************************"
-    print ""
-    print "Queue a pack :"
-    print "/XDCC ADD [bot_name] [n°_pack]"
-    print ""
-    print "Queue a pack list :"
-    print "/XDCC ADDL [bot_name] [n°_pack_beg] [n°_pack_end]"
-    print ""
-    print "Queue non-sequential pack list :"
-    print "/XDCC ADDM [bot_name] [n°_pack_1] [n°_pack_2] [...]"
-    print ""
-    print "See pack queue :"
-    print "/XDCC QUEUE"
-    print ""
-    print "See pack queue for a bot :"
-    print "/XDCC QUEUE [bot_name]"
-    print ""
-    print "Withdraw a pack from queue :"
-    print "/XDCC RMP [bot_name] [n°pack]"
-    print ""
-    print "Withdraw a pack list from queue :"
-    print "/XDCC RMPL [bot_name] [n°pack_beg] [N°pack_end]"
-    print ""
-    print "Withdraw a non-sequential pack list from queue :"
-    print "/XDCC RMPM [bot_name] [n°_pack_1] [n°_pack_2] [...]"
-    print ""
-    print "Withdraw a bot from queue :"
-    print "/XDCC RMBOT [bot_name]"
-    print ""
-    print "Stop EasyXdcc :"
-    print "/XDCC STOP"
-    print ""
-    print "Start EasyXdcc :"
-    print "/XDCC START"
-    print ""
-    print "Show auto-start status :"
-    print "/XDCC AUTO"
-    print ""
-    print "Toggle auto-start :"
-    print "/XDCC AUTO [ON|OFF]"
-    print ""
-    print "Save Queue :"
-    print "/XDCC SAVE"
-    print ""
-    print "Load Queue :"
-    print "/XDCC LOAD"
-    print ""
-    print "Delete saved Queue file :"
-    print "/XDCC PURGE"
-    print ""
+    print("")
+    print("*****************************")
+    print("*     EasyXdcc Commands     *")
+    print("*****************************")
+    print("")
+    print("Queue a pack :")
+    print("/XDCC ADD [bot_name] [n°_pack]")
+    print("")
+    print("Queue a pack list :")
+    print("/XDCC ADDL [bot_name] [n°_pack_beg] [n°_pack_end]")
+    print("")
+    print("Queue non-sequential pack list :")
+    print("/XDCC ADDM [bot_name] [n°_pack_1] [n°_pack_2] [...]")
+    print("")
+    print("See pack queue :")
+    print("/XDCC QUEUE")
+    print("")
+    print("See pack queue for a bot :")
+    print("/XDCC QUEUE [bot_name]")
+    print("")
+    print("Withdraw a pack from queue :")
+    print("/XDCC RMP [bot_name] [n°pack]")
+    print("")
+    print("Withdraw a pack list from queue :")
+    print("/XDCC RMPL [bot_name] [n°pack_beg] [N°pack_end]")
+    print("")
+    print("Withdraw a non-sequential pack list from queue :")
+    print("/XDCC RMPM [bot_name] [n°_pack_1] [n°_pack_2] [...]")
+    print("")
+    print("Withdraw a bot from queue :")
+    print("/XDCC RMBOT [bot_name]")
+    print("")
+    print("Stop EasyXdcc :")
+    print("/XDCC STOP")
+    print("")
+    print("Start EasyXdcc :")
+    print("/XDCC START")
+    print("")
+    print("Show auto-start status :")
+    print("/XDCC AUTO")
+    print("")
+    print("Toggle auto-start :")
+    print("/XDCC AUTO [ON|OFF]")
+    print("")
+    print("Save Queue :")
+    print("/XDCC SAVE")
+    print("")
+    print("Load Queue :")
+    print("/XDCC LOAD")
+    print("")
+    print("Delete saved Queue file :")
+    print("/XDCC PURGE")
+    print("")
 
     return xchat.EAT_ALL
 
@@ -304,25 +304,25 @@ def idx_EasyXdcc(word, word_eol, userdata):
 
 def seequeue():
     global queue
-    print queue
+    print(queue)
     return xchat.EAT_ALL
 
 def seebotqueue(bot_name):
     global queue
     if (type(bot_name) != str):
-        print "/XDCC QUEUE [BOT_NAME]"
+        print("/XDCC QUEUE [BOT_NAME]")
         return xchat.EAT_ALL
     else:
         bot = search_bot_current_chan(bot_name)
         if bot is not None:
-            print bot
+            print(bot)
     return xchat.EAT_ALL
 
 def show_auto():
     if os.path.exists(sav_dir + "autostart"):
-        print "EasyXdcc : auto-start is currently ON"
+        print("EasyXdcc : auto-start is currently ON")
     else:
-        print "EasyXdcc : auto-start is currently OFF"
+        print("EasyXdcc : auto-start is currently OFF")
     return xchat.EAT_ALL
 
 def toggle_auto(switch):
@@ -331,120 +331,120 @@ def toggle_auto(switch):
             file = open(sav_dir + "autostart", 'w')
             file.close()
         xchat.command ("MENU -t1 ADD \"EasyXdcc/Auto-Start\" \"xdcc auto on\" \"xdcc auto off\"")
-        print "EasyXdcc : auto-start enabled"
+        print("EasyXdcc : auto-start enabled")
     if 'off' == switch:
         if os.path.exists(sav_dir + "autostart"):
             os.remove(sav_dir + "autostart")
         xchat.command ("MENU -t0 ADD \"EasyXdcc/Auto-Start\" \"xdcc auto on\" \"xdcc auto off\"")
-        print "EasyXdcc : auto-start disabled"
+        print("EasyXdcc : auto-start disabled")
     return xchat.EAT_ALL
 
 def add(bot_name, num_pack):
     global queue
     if (type(bot_name) != str) & (type(num_pack) != int):
-        print "/XDCC ADD BOT_NAME NUM_PACK"
+        print("/XDCC ADD BOT_NAME NUM_PACK")
     else:
         bot = get_bot_current_chan(bot_name)
         if bot is not None:
             bot.add_pack(num_pack)
-            print "EasyXdcc : Pack number #"+str(num_pack)+" add to "+bot_name
+            print("EasyXdcc : Pack number #"+str(num_pack)+" add to "+bot_name)
     return xchat.EAT_ALL
 
 def addl(bot_name, pbeg, pend):
     global queue
     if (type(bot_name) != str) & (type(pbeg) != int) & (type(pend) != int):
-        print "/XDCC ADD BOT_NAME NUM_PACK"
+        print("/XDCC ADD BOT_NAME NUM_PACK")
     else:
         bot = get_bot_current_chan(bot_name)
         if bot is not None:
             for pack in range(pbeg, pend+1):
                 bot.add_pack(pack)
-            print "EasyXdcc : Packs number #"+str(pbeg)+" to #"+str(pend)+" add to "+bot_name
+            print("EasyXdcc : Packs number #"+str(pbeg)+" to #"+str(pend)+" add to "+bot_name)
     return xchat.EAT_ALL
 
 def addm(bot_name, *pack_nums):
     global queue
     pack_nums = pack_nums[0]
     if (type(bot_name) != str) & (type(pack_nums) != tuple) & (type(pack_nums[0]) != int):
-        print "/XDCC ADDM BOT_NAME PACK_NUM_1 PACK_NUM_2 ..."
+        print("/XDCC ADDM BOT_NAME PACK_NUM_1 PACK_NUM_2 ...")
     else:
         bot = get_bot_current_chan(bot_name)
         if bot is not None:
             for pack in pack_nums:
                 bot.add_pack(int(pack))
-            print "EasyXdcc : add "+str(len(pack_nums))+" Packs to "+bot_name
+            print("EasyXdcc : add "+str(len(pack_nums))+" Packs to "+bot_name)
     return xchat.EAT_ALL
 
 def rmp(bot_name,num_pack):
     if (type(bot_name) != str) & (type(num_pack) != int):
-        print "/XDCC RMP BOT_NAME NUM_PACK"
+        print("/XDCC RMP BOT_NAME NUM_PACK")
     else:
         bot = search_bot_current_chan(bot_name)
         if bot is not None:
             bot.del_pack(num_pack)
-            print "EasyXdcc : Pack number #"+str(num_pack)+" remove from "+bot_name
+            print("EasyXdcc : Pack number #"+str(num_pack)+" remove from "+bot_name)
     return xchat.EAT_ALL
 
 def rmpl(bot_name,pbeg,pend):
     global queue
     if (type(bot_name) != str) & (type(pbeg) != int) & (type(pend) != int):
-        print "/XDCC RMPL BOT_NAME PACK_BEG PACK_END"
+        print("/XDCC RMPL BOT_NAME PACK_BEG PACK_END")
     else:
         bot = search_bot_current_chan(bot_name)
         if bot is not None:
             for pack in range(pbeg,pend + 1):
                 bot.del_pack(pack)
-            print "EasyXdcc : Pack number #"+str(pbeg)+" to #"+str(pend)+" remove from "+bot_name
+            print("EasyXdcc : Pack number #"+str(pbeg)+" to #"+str(pend)+" remove from "+bot_name)
     return xchat.EAT_ALL
 
 def rmpm(bot_name, *pack_nums):
     global queue
     pack_nums = pack_nums[0]
     if (type(bot_name) != str) & (type(pack_nums) != tuple) & (type(pack_nums[0]) != int):
-        print "/XDCC RMPM BOT_NAME PACK_NUM_1 PACK_NUM_2 ..."
+        print("/XDCC RMPM BOT_NAME PACK_NUM_1 PACK_NUM_2 ...")
     else:
         bot = get_bot_current_chan(bot_name)
         if bot is not None:
             for pack in pack_nums:
                 bot.del_pack(int(pack))
-            print "EasyXdcc : remove "+str(len(pack_nums))+" Packs from "+bot_name
+            print("EasyXdcc : remove "+str(len(pack_nums))+" Packs from "+bot_name)
     return xchat.EAT_ALL
 
 def rmbot(bot_name):
     global queue
     if (type(bot_name) != str):
-        print "/XDCC RMBOT BOT_NAME"
+        print("/XDCC RMBOT BOT_NAME")
     else:
         bot = search_bot_current_chan(bot_name)
         if bot is not None:
             queue.del_bot(bot)
-        print "EasyXdcc : "+bot_name+" removed from queue"
+        print("EasyXdcc : "+bot_name+" removed from queue")
     return xchat.EAT_ALL
 
 def save():
     global queue,sav_file
     queue.save(sav_file)
-    print "Queue(s) state saved"
+    print("Queue(s) state saved")
     return xchat.EAT_ALL
 
 def load():
     global queue,sav_file
     queue.load(sav_file)
     # queue.connect()
-    print "Queue(s) state loaded"
+    print("Queue(s) state loaded")
     return xchat.EAT_ALL
 
 def delqueue():
     global queue,sav_file
     queue.delqueue(sav_file)
-    print "Queue file deleted"
+    print("Queue file deleted")
     return xchat.EAT_ALL
 
 def start():
     global my_hook
     if my_hook is None:
         my_hook = xchat.hook_timer(10000, launch_dl)
-        print "EasyXdcc started"
+        print("EasyXdcc started")
         launch_dl(None)
     return xchat.EAT_ALL
 
@@ -453,7 +453,7 @@ def stop():
     if my_hook is not None:
         xchat.unhook(my_hook)
         my_hook = None
-        print "EasyXdcc stoped"
+        print("EasyXdcc stoped")
     return xchat.EAT_ALL
 
 def launch_dl(userdata):
@@ -484,7 +484,7 @@ def launch_dl(userdata):
 def server_check(userdata = None):
     global my_hook, no_server
     if 0 == no_server:
-        print "EasyXdcc : waiting for connection"
+        print("EasyXdcc : waiting for connection")
         no_server = 1
     if None != xchat.get_info("server"):
         xchat.unhook(my_hook)
@@ -535,7 +535,7 @@ if os.path.exists(sav_dir + "autostart"):
 else:
     xchat.command ("MENU -t0 ADD \"EasyXdcc/Auto-Start\" \"xdcc auto on\" \"xdcc auto off\"")
 
-print "Plugin EasyXdcc loaded!"
+print("Plugin EasyXdcc loaded!")
 
 xchat.command ("xdcc load")
 if len(queue.bots) > 0:
@@ -543,6 +543,6 @@ if len(queue.bots) > 0:
     if os.path.exists(sav_dir + "autostart"):
         xchat.command ("xdcc start")
     else:
-        print "/XDCC START to start downloading!"
+        print("/XDCC START to start downloading!")
 
-print "/XDCC HELP for more"
+print("/XDCC HELP for more")
