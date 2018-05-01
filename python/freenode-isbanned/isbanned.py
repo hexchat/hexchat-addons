@@ -1,6 +1,6 @@
 __module_name__ = "isbanned"
 __module_author__ = "mniip"
-__module_version__ = "0.7"
+__module_version__ = "0.7.1"
 __module_description__ = "freenode-specific module that checks whether someone is banned on some channel"
 
 """
@@ -119,7 +119,7 @@ char_classes = {
     }
 for c in "-_`^0123456789":
     char_classes[c] = c
-for c in range(0, 25):
+for c in range(0, 26):
     lc = chr(ord("a") + c)
     uc = chr(ord("A") + c)
     char_classes[lc] = "[" + lc + uc + "]"
