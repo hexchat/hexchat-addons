@@ -13,7 +13,7 @@ connect to Tor and I2P servers easier.
         Show this help message
 
     /PRIVACY network [tor|i2p]
-        Switch between Tor and I2P networks
+        Switch between clearnet (no proxy), Tor and I2P proxy presets
 
     /PRIVACY set <option> <value>
 
@@ -35,7 +35,7 @@ def switch_network(word):
         configure_hexchat()
         print("Switched network to", word[2])
     else:
-        return do_help()
+        do_help()
 
 def set_option(word):
     if len(word) == 2:
@@ -47,7 +47,7 @@ def set_option(word):
         configure_hexchat()
         print(k, "=", v)
     else:
-        return do_help()
+        do_help()
 
 def configure_hexchat():
     if hexchat.get_pluginpref("privacy_network") is None:
