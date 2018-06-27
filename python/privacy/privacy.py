@@ -24,7 +24,7 @@ connect to Tor and I2P servers easier.
         privacy_no_logs   0|1 (default: 1)
 """
 
-DEFAULT_PROXY = {"tor": "127.0.0.1:9050", "i2p": "127.0.0.1:4447"}
+DEFAULT_PROXY = {"clearnet": "", "tor": "127.0.0.1:9050", "i2p": "127.0.0.1:4447"}
 
 def do_help(): print(HELP_TEXT)
 
@@ -51,7 +51,7 @@ def set_option(word):
 
 def configure_hexchat():
     if hexchat.get_pluginpref("privacy_network") is None:
-        hexchat.set_pluginpref("privacy_network", "Tor")
+        hexchat.set_pluginpref("privacy_network", "clearnet")
     if hexchat.get_pluginpref("privacy_proxy") is None:
         hexchat.set_pluginpref("privacy_proxy", 
             DEFAULT_PROXY[hexchat.get_pluginpref("privacy_network").lower()])
@@ -78,6 +78,8 @@ def configure_hexchat():
             ("net_proxy_type", "3"),
             ("net_proxy_use",  "0"),
         ]
+    else:
+        options += [("net_proxy_type", "0"),]
 
     if hexchat.get_pluginpref("privacy_no_logs") == 1:
         options += [("irc_logging", "0"), ("text_replay", "0"),]
@@ -98,15 +100,10 @@ ACTIONS = {
 }
 
 def privacy_cb(word, word_eol, userdata):
-    try:
-        action = word[1].lower()
-    except IndexError:
-        do_help()
+    if len(word) >= 2 and word[1] in ACTIONS:
+        ACTIONS[word[1].lower()](word)
     else:
-        try:
-            ACTIONS[action](word)
-        except KeyError:
-            do_help()
+        do_help()
 
     return hexchat.EAT_ALL
 
@@ -119,3 +116,4 @@ if __name__ == "__main__":
     hexchat.command('MENU ADD "Privacy/Set network"')
     hexchat.command('MENU ADD "Privacy/Set network/I2P" "PRIVACY network i2p"')
     hexchat.command('MENU ADD "Privacy/Set network/Tor" "PRIVACY network tor"')
+    hexchat.command('MENU ADD "Privacy/Set network/Clearnet" "PRIVACY network clearnet"')
