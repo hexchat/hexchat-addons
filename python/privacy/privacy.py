@@ -12,8 +12,9 @@ connect to Tor and I2P servers easier.
     /PRIVACY help
         Show this help message
 
-    /PRIVACY network [tor|i2p]
-        Switch between clearnet (no proxy), Tor and I2P proxy presets
+    /PRIVACY network [clearnet|tor|i2p]
+        Switch between proxy presets: clearnet, Tor and I2P.
+        Default preset is clearnet, which means direct connection without proxy.
 
     /PRIVACY set <option> <value>
 
