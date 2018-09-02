@@ -521,7 +521,7 @@ def command(w, we, u):
     channel = hexchat.get_info("channel")
     ctx = hexchat.get_context()
     @Async
-    def async(thread):
+    def async_action(thread):
         actions = parseActions(channel, we[1] if len(we) > 1 else "")
         log(0, "[" + str(netId(ctx)) + "] [" + channel + "] /" + cmd + " " + renderActions(actions))
         if cmd in ["cd", "d"]:
