@@ -1,7 +1,7 @@
 nicenicks
 ============
 
-Hexchat script which colourizes all the nicks in a channel. It's different from the built-in colouring system because that one freqeuently assigns two people in a channel the same colour when there are still MANY unused colours.
+Hexchat script which colourizes all the nicks in a channel. It's different from the built-in colouring system because that one frequently assigns two people in a channel the same colour when there are still MANY unused colours.
 
 The nicks in the events called "Channel Message" and "Channel Action" will be recoloured by this script.
 
@@ -23,13 +23,13 @@ Command | Example | Comment
 
 ## Installation
 
-###Linux/mac
+### Linux/mac
 - copy ``nicenicks.py`` in ``~/.config/hexchat/addons/``
 
-###Windows
+### Windows
 - copy ``nicenicks.py`` in ``%APPDATA%\HexChat\addons\``
 
-###XChat users
+### XChat users
 
 You should use [this old version of nicenicks](https://github.com/hexchat/hexchat-addons/blob/ce72d9d3f8a556493ed43e5c8d3a562afaa8317b/python/nicenicks/nicenicks.py). I encountered [a problem](https://github.com/hexchat/hexchat-addons/blob/7e9e0dcc2f73f58172a260a7050496b08d902c9a/python/nicenicks/nicenicks.py#L29) when trying to port the new version back to XChat. The effect of this problem is all messages and actions being output twice. You will not receive updates or new changes, and events are handled differently (intercepted raw commands converted to prnt events, instead of intercepted events simply recoloured)... unless somebody wants to help us solve that :)
 - copy [this old version of nicenicks](https://github.com/hexchat/hexchat-addons/blob/ce72d9d3f8a556493ed43e5c8d3a562afaa8317b/python/nicenicks/nicenicks.py) to the XChat profile directory. [Look here to see where your profile directory is](http://xchatdata.net/Using/ProfileDirectory).
