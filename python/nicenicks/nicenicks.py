@@ -79,6 +79,7 @@ ec.update({"b": "\002",  # bold
 ######## MAKING STUFF HAPPEN FUNCS ########
 
 color3_tabs = set()
+current_focus_tab = None
 
 def jprint(*objects):
     hexchat.prnt("".join(objects))
@@ -277,23 +278,27 @@ def tab_hilight_callback(word, word_eol, userdata, attributes):
     colour with the colour '2' in message_callback."""
     sid = hexchat.get_prefs('id')
     chan = hexchat.get_info('channel')
-    color3_tabs.add((sid, chan))
-    dmsg("Got highlight. Added this context to color3_tabs.")
+    if (sid, chan) != current_focus_tab:
+        color3_tabs.add((sid, chan))
+        dmsg("Got highlight. Added this context to color3_tabs.")
     return hexchat.EAT_NONE
     
 
 def tab_focus_callback(word, word_eol, userdata):
+    """Undoes the action in tab_hilight_callback so that we can colour tabs '2' again."""
     global color3_tabs
-    l0 = len(color3_tabs)
+    global current_focus_tab
     sid = hexchat.get_prefs('id')
     chan = hexchat.get_info('channel')
+    current_focus_tab = (sid, chan)
+    dmsg("Focus changed to {}".format(current_focus_tab))
+    dmsg("Current color3_tabs: {!r}".format(color3_tabs))
     try:
         color3_tabs.remove((sid, chan))
     except KeyError:
         pass
     else:
-        l1 = len(color3_tabs)
-        dmsg("Got tab focus. Removed {} tabs from color3_tabs.".format(l0-l1))
+        dmsg("Removed this tab from color3_tabs.")
     return hexchat.EAT_NONE
 
 def message_callback(word, word_eol, userdata, attributes):
