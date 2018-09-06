@@ -78,6 +78,8 @@ ec.update({"b": "\002",  # bold
 
 ######## MAKING STUFF HAPPEN FUNCS ########
 
+color3_tabs = []
+
 def jprint(*objects):
     hexchat.prnt("".join(objects))
 
@@ -270,6 +272,29 @@ def nicenicks_dump_command(word, word_eol, userdata):
     print(chancolortable)
     return hexchat.EAT_ALL
 
+def tab_hilight_callback(word, word_eol, userdata, attributes):
+    """Called when we expect a tab to be coloured '3', so we don't override that
+    colour with the colour '2' in message_callback."""
+    ctx = hexchat.get_context()
+    color3_tabs.append(ctx)
+    dmsg("Got highlight. Added this context to color3_tabs.")
+    return hexchat.EAT_NONE
+    
+
+def tab_focus_callback(word, word_eol, userdata):
+    global color3_tabs
+    our_ctx = hexchat.get_context()
+    l0 = len(color3_tabs)
+    color3_tabs = [ctx for ctx in color3_tabs if ctx != our_ctx]
+    l1 = len(color3_tabs)
+    dmsg("Got tab focus. Removed {} contexts from color3_tabs.".format(l0-l1))
+    return hexchat.EAT_NONE
+
+def tab_is_color3(our_ctx):
+    for ctx in color3_tabs:
+        if ctx == our_ctx:
+            return True
+    return False
 
 def message_callback(word, word_eol, userdata, attributes):
     """"This function is called every time a new 'Channel Message' or
@@ -294,6 +319,7 @@ def message_callback(word, word_eol, userdata, attributes):
 
         chan = hexchat.get_info("channel")
         net = hexchat.get_info("network")
+        ctx = hexchat.get_context()
         if net not in chancolortable:
             # create an empty network entry
             dmsg("Making new network "+net, "COLORTABLE")
@@ -313,11 +339,11 @@ def message_callback(word, word_eol, userdata, attributes):
         word[0] = newnick
         dmsg('Old nick: %s - New Nick: %s' % (nick, newnick))
         hexchat.emit_print(event_name, *word, time=attributes.time)
-        hexchat.command("gui color 2") # required since HexChat 2.12.4
+        if not tab_is_color3(ctx):
+            hexchat.command("gui color 2") # required since HexChat 2.12.4
         return hexchat.EAT_ALL
     else:
         return hexchat.EAT_NONE
-
 
 ########## HOOK IT UP ###########
 
@@ -328,6 +354,9 @@ except:
 
 hexchat.hook_print_attrs("Channel Message", message_callback, "Channel Message", priority=hexchat.PRI_HIGHEST)
 hexchat.hook_print_attrs("Channel Action", message_callback, "Channel Action", priority=hexchat.PRI_HIGHEST)
+hexchat.hook_print_attrs("Channel Msg Hilight", tab_hilight_callback, priority=hexchat.PRI_LOW)
+hexchat.hook_print_attrs("Channel Action Hilight", tab_hilight_callback, priority=hexchat.PRI_LOW)
+hexchat.hook_print("Focus Tab", tab_focus_callback, priority=hexchat.PRI_LOW)
 
 hexchat.hook_command("NICENICKS", nicenicks_command, None, hexchat.PRI_NORM, "NICENICKS INFO:\t\nThis script will colourize nicks of users automatically, using a 'least-recently-used' algorithm (to avoid two people having the same colour).\n\nFriends' nicks can be assigned a specific colour with the SETCOLOR command, a list of colors can be shown with the COLORTABLE command, and this script can be enabled/disabled with the NICENICKS command (/NICENICKS on or /NICENICKS off).\n\nAlso, for fun, try '/NICENICKS_DUMP', or '/NICEDEBUG on'")
 hexchat.hook_command("NICEDEBUG", nicedebug_command, None, hexchat.PRI_NORM, "Usage:\t/NICEDEBUG On to enable, /NICEDEBUG Off to disable.")
