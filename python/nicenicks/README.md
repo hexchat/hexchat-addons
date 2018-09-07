@@ -7,27 +7,28 @@ The nicks in the events called "Channel Message" and "Channel Action" will be re
 
 ## Features
 - Colourize nicks based on least-recently-used colour. (When a user who has no colour starts talking, it picks the colour that hasn't been used in the longest time.)
-- Assign specific colours to specific nicks. This steals colours from other users. ;)
+- Assign specific colours to specific nicks on a permanent basis. This steals colours from other users. ;)
 
 ## Usage
 
 Command | Example | Comment
 ------- | ------- | ----------
 /NICENICKS [on/off] |    | turn the script on or off (use without argument for status)
-/SETCOLOR |         | show colour mappings
-/SETCOLOR [nick] [color] | /SETCOLOR TriangleMan 12 | permanently maps [color] to [nick] \(stealing the colour from other users if necessary)
+/SETCOLOR |         | show permanent colour mappings
+/SETCOLOR [nick] [color] | /SETCOLOR TriangleMan 12 | permanently maps [color] to [nick] \(stealing the colour from other users if necessary). This applies to all networks and channels, wherever we see the nick sending messages. Nicks are case insensitive.
 /SETCOLOR -[nick] | /SETCOLOR -TriangleMan | remove [nick] from colour mapping table
 /COLORTABLE |    | display a list of colours
-/NICEDEBUG [on/off] |    | Enable or disable the display of debug messages (use without argument for status)
-/NICENICKS_DUMP |    | dump the internal dictionary of all known nick colours
+/NICENICKS_DUMP [raw] |    | print the internal dictionary of all known nick colours (use 'raw' to see the internal representation, which may be longer than HexChat can put on one line)
+/NICEDEBUG [on/off] |   | Enable or disable the display of debug messages (use without argument for status)
+/NICEDEBUG [description] | /NICEDEBUG GUICOLOR | Display only debug messages with a certain description (the part before the tab/separator character). See the code for instances of `dmsg` usage, for available descriptions. Descriptions are case sensitive.
 
 ## Installation
 
 ### Linux/mac
-- copy ``nicenicks.py`` in ``~/.config/hexchat/addons/``
+- copy ``nicenicks.py`` to ``~/.config/hexchat/addons/``
 
 ### Windows
-- copy ``nicenicks.py`` in ``%APPDATA%\HexChat\addons\``
+- copy ``nicenicks.py`` to ``%APPDATA%\HexChat\addons\``
 
 ### XChat users
 
