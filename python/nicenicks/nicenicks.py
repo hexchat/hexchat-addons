@@ -1,13 +1,13 @@
 #################################################################
 ## Nice Nicks, version <whatever it says down there>
-## maintained by BurritoBazooka (burritobazooka@googlemail.com)
+## maintained by BurritoBazooka (burritobazooka@gmail.com)
 ## authored by Chris Gahan (chris@ill-logic.com), licensed under the WTFPL version 2.
 ##
 ## What is this?
 ##   This is an X-Chat script written in python which colourizes all the nicks in a channel.
 ##   It will check if you've got nick colouring enabled in X-Chat when it starts up, but you
 ##   can enable/disable it with the /NICENICKS command. It's better than the built-in colouring
-##   system because that one frqeuently assigns two people in a channel the same colour when
+##   system because that one frequently assigns two people in a channel the same colour when
 ##   there are still MANY unused colours.
 ##
 ## Type /HELP NICENICKS for usage info.
@@ -34,7 +34,7 @@
 from __future__ import print_function
 
 __module_name__ = "nicenicks"
-__module_version__ = "0.083"
+__module_version__ = "0.084"
 __module_description__ = "Sweet-ass nick colouring."
 
 from collections import defaultdict
@@ -49,10 +49,10 @@ if hexchat.get_prefs('text_color_nicks') == 1: # if user has enabled the
     nicenicks_enabled = True
 else:
     nicenicks_enabled = False
-debug_enabled = False
+debug_enabled = set()
 
 # You can edit the following default colour table if you want the program to use fewer colours
-# (or more colours -- I left out all the ugly ones. :) The last colour in the table gets used first.
+# (or more colours -- I left out all the ugly ones. :) The first colour in the table gets used first.
 defaultcolortable = [ (11, None), (4, None), (13, None), (7, None), (8, None), (9, None), (10, None), (3, None), (12, None), (6, None), (14, None), (15, None) ]
 
 chancolortable = {}
@@ -78,7 +78,7 @@ ec.update({"b": "\002",  # bold
 
 ######## MAKING STUFF HAPPEN FUNCS ########
 
-color3_tabs = set()
+color3_tabs = []
 current_focus_tab = None
 
 def jprint(*objects):
@@ -98,7 +98,7 @@ def col(foreground, background=None):
 
 def dmsg(msg, desc="DEBUG", prefix="(nn) "):
     "Debug message -- Print 'msg' if debugging is enabled."
-    if debug_enabled:
+    if "*" in debug_enabled or desc in debug_enabled:
         omsg(msg, desc, prefix)
 
 def omsg(msg, desc="Info", prefix="(nn) "):
@@ -161,7 +161,7 @@ def get_color(ctable, nick):
 def color_table_command(word, word_eol, userdata):
     "Prints a color table."
 
-    for color in range(16):
+    for color in range(32):
         jprint(ecs("o"), "Color #", str(color), "\t", col(color), "COLOR!")
 
     return hexchat.EAT_ALL
@@ -227,7 +227,7 @@ def setcolor_command(word, word_eol, userdata):
                 omsg(os.path.abspath(datafile), "ERR_FILEWRITE")
 
         else:
-            omsg("Not a valid colour! Please pick one between 0 and 15. See the 'Preferences...' for the list of colours.", "ERROR")
+            omsg("Not a valid colour! Please pick one between 0 and 31. See the 'Preferences...' for the list of colours.", "ERROR")
 
     else:
         omsg("Too many parameters, guy!","ERRNOR")
@@ -259,11 +259,15 @@ def nicedebug_command(word, word_eol, userdata):
     if len(word) == 2:
         command = word[1].lower()
         if command == "on" or command == "true" or command == "1":
-            debug_enabled = True
-        if command == "off" or command == "false" or command == "0":
-            debug_enabled = False
+            debug_enabled = set("*")
+        elif command == "off" or command == "false" or command == "0":
+            debug_enabled = set()
+        elif word[1].startswith("-"):
+            debug_enabled.discard(word[1][1:])
+        else:
+            debug_enabled.add(word[1])
 
-    print("+\tNicenicks Debug enabled: ", debug_enabled)
+    print("+\tNicenicks Debug enabled: ", debug_enabled or "Off")
     return hexchat.EAT_ALL
 
 
@@ -276,29 +280,31 @@ def nicenicks_dump_command(word, word_eol, userdata):
 def tab_hilight_callback(word, word_eol, userdata, attributes):
     """Called when we expect a tab to be coloured '3', so we don't override that
     colour with the colour '2' in message_callback."""
-    sid = hexchat.get_prefs('id')
-    chan = hexchat.get_info('channel')
-    if (sid, chan) != current_focus_tab:
-        color3_tabs.add((sid, chan))
-        dmsg("Got highlight. Added this context to color3_tabs.")
+    ctx = hexchat.get_context()
+    if ctx != current_focus_tab:
+        color3_tabs.append(ctx)
+        dmsg("Got highlight. Added this context to color3_tabs.", "GUICOLOR")
     return hexchat.EAT_NONE
-    
+
+def is_color3_tab(our_ctx, remove=False):
+    for ctx in color3_tabs:
+        if ctx == our_ctx:
+            return True
+    return False
 
 def tab_focus_callback(word, word_eol, userdata):
     """Undoes the action in tab_hilight_callback so that we can colour tabs '2' again."""
     global color3_tabs
     global current_focus_tab
-    sid = hexchat.get_prefs('id')
-    chan = hexchat.get_info('channel')
-    current_focus_tab = (sid, chan)
-    dmsg("Focus changed to {}".format(current_focus_tab))
-    dmsg("Current color3_tabs: {!r}".format(color3_tabs))
-    try:
-        color3_tabs.remove((sid, chan))
-    except KeyError:
-        pass
-    else:
-        dmsg("Removed this tab from color3_tabs.")
+    our_ctx = hexchat.get_context()
+    current_focus_tab = our_ctx
+    dmsg("Focus changed to {}. Current color3_tabs: {!r}".format(current_focus_tab, color3_tabs), "GUICOLOR")
+    
+    n = len(color3_tabs)
+    color3_tabs = [ctx for ctx in color3_tabs if ctx != our_ctx]
+    nremoved = n - len(color3_tabs)
+    if nremoved:
+        dmsg("Removed {} tab{} from color3_tabs.".format(nremoved, "s"*(nremoved!=1)), "GUICOLOR")
     return hexchat.EAT_NONE
 
 def message_callback(word, word_eol, userdata, attributes):
@@ -324,7 +330,7 @@ def message_callback(word, word_eol, userdata, attributes):
 
         chan = hexchat.get_info("channel")
         net = hexchat.get_info("network")
-        sid = hexchat.get_prefs('id')
+        ctx = hexchat.get_context()
         if net not in chancolortable:
             # create an empty network entry
             dmsg("Making new network "+net, "COLORTABLE")
@@ -344,7 +350,7 @@ def message_callback(word, word_eol, userdata, attributes):
         word[0] = newnick
         dmsg('Old nick: %s - New Nick: %s' % (nick, newnick))
         hexchat.emit_print(event_name, *word, time=attributes.time)
-        if not (sid, chan) in color3_tabs:
+        if not is_color3_tab(ctx):
             hexchat.command("gui color 2") # required since HexChat 2.12.4
         return hexchat.EAT_ALL
     else:
@@ -364,7 +370,7 @@ hexchat.hook_print_attrs("Channel Action Hilight", tab_hilight_callback, priorit
 hexchat.hook_print("Focus Tab", tab_focus_callback, priority=hexchat.PRI_LOW)
 
 hexchat.hook_command("NICENICKS", nicenicks_command, None, hexchat.PRI_NORM, "NICENICKS INFO:\t\nThis script will colourize nicks of users automatically, using a 'least-recently-used' algorithm (to avoid two people having the same colour).\n\nFriends' nicks can be assigned a specific colour with the SETCOLOR command, a list of colours can be shown with the COLORTABLE command, and this script can be enabled/disabled with the NICENICKS command (/NICENICKS on or /NICENICKS off).\n\nAlso, for fun, try '/NICENICKS_DUMP', or '/NICEDEBUG on'")
-hexchat.hook_command("NICEDEBUG", nicedebug_command, None, hexchat.PRI_NORM, "Usage:\t/NICEDEBUG On to enable, /NICEDEBUG Off to disable.")
+hexchat.hook_command("NICEDEBUG", nicedebug_command, None, hexchat.PRI_NORM, "Usage:\t/NICEDEBUG On to enable for all messages, /NICEDEBUG Off to disable, or to enable showing only debug messages with a certain description: '/NICEDEBUG description'. Remove a description: '/NICEDEBUG -description'")
 hexchat.hook_command("SETCOLOR", setcolor_command, None, hexchat.PRI_NORM, "Usage:\t/SETCOLOR -- show colour mappings\n/SETCOLOR [nick] [color] -- permanently maps [color] to [nick] (stealing the colour from other users if necessary)\n/SETCOLOR -[nick] -- remove [nick] from colour mapping table")
 hexchat.hook_command("COLORTABLE", color_table_command)
 hexchat.hook_command("NICENICKS_DUMP", nicenicks_dump_command, None, hexchat.PRI_NORM, "Usage:\t/NICENICKS_DUMP to dump all the nick colours for all active channels")
