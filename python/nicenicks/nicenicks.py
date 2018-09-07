@@ -209,7 +209,7 @@ def setcolor_command(word, word_eol, userdata):
 
         color = int(word[2]) # get the color
 
-        if 0 <= color <= 15:
+        if 0 <= color <= 31:
             # give it a new color
             permacolortable[nick] = color
             omsg("".join(["New color -> ", col(color), nick, ecs("o")]), "SETCOLOR")
@@ -376,6 +376,10 @@ hexchat.hook_command("COLORTABLE", color_table_command)
 hexchat.hook_command("NICENICKS_DUMP", nicenicks_dump_command, None, hexchat.PRI_NORM, "Usage:\t/NICENICKS_DUMP to dump all the nick colours for all active channels")
 
 omsg("Nicenicks version {} loaded!".format(__module_version__))
+print("+\tNicenicks enabled:", nicenicks_enabled)
+if not nicenicks_enabled:
+    print("+\tTo have Nicenicks enabled on start, do '/set text_color_nicks 1', or turn that setting on at:")
+    print("+\tSettings → Preferences → Appearance → Colored nick names")
 defctable = 'Default colour table:'
 for c, n in defaultcolortable:
     defctable = '{0} \003{1:02d}{1:02d}'.format(defctable,c)
