@@ -92,9 +92,9 @@ def ecs(series):
 
 def col(foreground, background=None):
     if background is not None:
-        return ec["c"] + str(foreground) + "," + str(background)
+        return ec["c"] + str(foreground).zfill(2) + "," + str(background).zfill(2)
     else:
-        return ec["c"] + str(foreground)
+        return ec["c"] + str(foreground).zfill(2)
 
 def dmsg(msg, desc="DEBUG", prefix="(nn) "):
     "Debug message -- Print 'msg' if debugging is enabled."
@@ -286,7 +286,7 @@ def tab_hilight_callback(word, word_eol, userdata, attributes):
         dmsg("Got highlight. Added this context to color3_tabs.", "GUICOLOR")
     return hexchat.EAT_NONE
 
-def is_color3_tab(our_ctx, remove=False):
+def is_color3_tab(our_ctx):
     for ctx in color3_tabs:
         if ctx == our_ctx:
             return True
