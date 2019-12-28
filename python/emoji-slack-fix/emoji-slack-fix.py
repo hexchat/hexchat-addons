@@ -3,9 +3,7 @@
 # Author: Andy Balaam
 # License: CC0 https://creativecommons.org/publicdomain/zero/1.0/
 
-# Requires https://pypi.python.org/pypi/emoji - I used 0.4.5
-# I manually copied the emoji dir into:
-# /home/andrebal/.local/lib/python2.7/site-packages
+# Requires https://pypi.python.org/pypi/emoji - I used 0.5.4
 import emoji
 import hexchat
 
@@ -13,7 +11,7 @@ __module_name__ = "slack-emojis"
 __module_version__ = "1.0"
 __module_description__ = "Translate emojis from Slack with colons into emojis"
 
-print "Loading slack-emojis"
+print ("Loading slack-emojis")
 chmsg = "Channel Message"
 prmsg = "Private Message to Dialog"
 
