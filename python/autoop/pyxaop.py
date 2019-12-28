@@ -140,17 +140,17 @@ def removeAop(params):
     try:
         if len(params) != 1:
             print ("Invalid number of parameters")
-            raise IndexError,"Print this noob some help"
+            raise IndexError("Print this noob some help")
         if params[0].isdigit():
             if not (int(params[0])-1) in range(len(aopList)):
-                raise IndexError,"Print this noob some help"
+                raise IndexError("Print this noob some help")
     except IndexError:
         printHelp()
         return
 
     # Remove element at index and save
     removed = aopList.pop(int(params[0])-1)
-    print "  ".join(["Removed ",removed["hostmask"],removed["channels"],removed["networks"]])
+    print("  " .join(["Removed ",removed["hostmask"],removed["channels"],removed["networks"]]))
 
     f = open(CONFIG_FILE_LOCATION,"w")
     pickle.dump(aopList,f)
@@ -171,19 +171,19 @@ def addAop(params):
     # Checks that we have at least three parameters, and that they are valid
     try:
         if len(params) >= 4:
-            print "Too many parameters!"
-            raise IndexError,"Print this noob some help"
+            print("Too many parameters!")
+            raise IndexError("Print this noob some help")
         if not isValidMask(params[0]) \
                 or not isValidChannelList(params[1]) \
                 or not isValidNetworkList(params[2]):
-                    print "INVALID ADD STRING!\n"
+                    print("INVALID ADD STRING!\n")
                     raise IndexError("Print this noob some help")
     except IndexError:
         printHelp()
     aopList.append( {"hostmask": params[0], "channels": params[1], "networks": params[2]} )
-    print "  ".join(["Added",params[0],params[1],params[2]])
+    print("  " .join(["Added",params[0],params[1],params[2]]))
 
-    f = open(CONFIG_FILE_LOCATION,"w")
+    f = open(CONFIG_FILE_LOCATION,"wb")
     pickle.dump(aopList,f)
     f.close()
 
@@ -191,22 +191,22 @@ def printList():
     """Outputs the current aop list to screen."""
     counter = 1
     for line in aopList:
-        print "\t%d: %s\t%s\t%s" % (counter,line["hostmask"],line["channels"],line["networks"])
+        print("\t%d: %s\t%s\t%s") % (counter,line["hostmask"],line["channels"],line["networks"])
         counter += 1
 
 def printHelp():
     """Outputs help to screen."""
-    print "=== XChat Auto-Op script by Eitan Adler. Version "+__module_version__+" ==="
-    print "ADD A HOSTMASK WITH SPECIFIED CHANNELS AND NETWORKS TO AOP LIST:"
-    print "  /xaop add nick!ident@host #ch1,#ch2,#ch3 network1,network2"
-    print "ADD A HOSTMASK FOR ALL USERS ON ALL CHANNELS AND ALL NETWORKS:"
-    print "  /xaop add *!*@* ALL ALL"
-    print "PRINT THE AOP LIST:"
-    print "  /xaop list"
-    print "REMOVE AN ITEM FROM THE AOP LIST:"
-    print "  /xaop remove <number from /xaop list>"
-    print "OP EVERYONE THAT SHOULD BE OPED:"
-    print "  /xaop allop"
+    print("=== XChat Auto-Op script by Eitan Adler. Version "+__module_version__+" ===")
+    print("ADD A HOSTMASK WITH SPECIFIED CHANNELS AND NETWORKS TO AOP LIST:")
+    print("  /xaop add nick!ident@host #ch1,#ch2,#ch3 network1,network2")
+    print("ADD A HOSTMASK FOR ALL USERS ON ALL CHANNELS AND ALL NETWORKS:")
+    print("  /xaop add *!*@* ALL ALL")
+    print("PRINT THE AOP LIST:")
+    print("  /xaop list")
+    print("REMOVE AN ITEM FROM THE AOP LIST:")
+    print("  /xaop remove <number from /xaop list>")
+    print("OP EVERYONE THAT SHOULD BE OPED:")
+    print("  /xaop allop")
 
 
 def xaop_callback(word, word_eol, userdata):
@@ -233,11 +233,10 @@ xchat.hook_command("xaop", xaop_callback, help="/xaop add|remove|list|help|allop
 # Load the aop list from a file:
 
 try:
-    f = open(CONFIG_FILE_LOCATION,"r")
+    f = open(CONFIG_FILE_LOCATION,"rb")
     aopList = pickle.load(f)
     f.close()
 except IOError:
     aopList = []
 except EOFError:
     aopList = []
-
