@@ -191,7 +191,7 @@ def printList():
     """Outputs the current aop list to screen."""
     counter = 1
     for line in aopList:
-        print("\t%d: %s\t%s\t%s") % (counter,line["hostmask"],line["channels"],line["networks"])
+        print("\t%d: %s\t%s\t%s" % (counter,line["hostmask"],line["channels"],line["networks"]))
         counter += 1
 
 def printHelp():
