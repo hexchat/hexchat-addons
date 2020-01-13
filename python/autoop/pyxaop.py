@@ -152,7 +152,7 @@ def removeAop(params):
     removed = aopList.pop(int(params[0])-1)
     print("  " .join(["Removed ",removed["hostmask"],removed["channels"],removed["networks"]]))
 
-    f = open(CONFIG_FILE_LOCATION,"w")
+    f = open(CONFIG_FILE_LOCATION,"wb")
     pickle.dump(aopList,f)
     f.close()
 
