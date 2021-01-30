@@ -516,8 +516,7 @@ def tryFixModes(version, action):
             ModeAction.append(ret, ma)
     return ret
 
-def command(w, we, u):
-    cmd = w[0]
+def command(w, we, cmd):
     channel = hexchat.get_info("channel")
     ctx = hexchat.get_context()
     @Async
@@ -566,7 +565,7 @@ hexchat.hook_server("005", handler005)
 hexchat.hook_command("cd_log", commandLog);
 hexchat.hook_command("cd_flush", commandFlush);
 hexchat.hook_command("cd_status", commandStatus);
-hexchat.hook_command("o", command);
-hexchat.hook_command("d", command);
-hexchat.hook_command("co", command);
-hexchat.hook_command("cd", command);
+hexchat.hook_command("o", command, "o");
+hexchat.hook_command("d", command, "d");
+hexchat.hook_command("co", command, "co");
+hexchat.hook_command("cd", command, "cd");

@@ -227,7 +227,7 @@ def analyze():
                 if not found:
                     try:
                         ip, width = bhost.rsplit("/", 1)
-                        width = int("0" + re.match("[0-9]*", width).group(0))
+                        width = int(re.match("-[0-9]*", width).group(0) or "0")
                         if width > 0:
                             is_v4 = ip.find(":") == -1
                             width = max((32 if is_v4 else 128) - width, 0)
