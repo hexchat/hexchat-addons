@@ -1,7 +1,7 @@
 __module_name__ = "isbanned"
 __module_author__ = "mniip"
 __module_version__ = "0.8"
-__module_description__ = "freenode-specific module that checks whether someone is banned on some channel"
+__module_description__ = "charybdis-specific module that checks whether someone is banned on some channel"
 
 """
     Commands:
@@ -23,7 +23,7 @@ __module_description__ = "freenode-specific module that checks whether someone i
     account: if the account part is omitted the user is assumed to be
     unidentified (as opposed to identified as empty string)
 
-    Supports all kinds of features, misfeatures, and quirks freenode uses.
+    Supports all kinds of features, misfeatures, and quirks charybdis has.
     Supports $a, $j, $r, $x, and $z extbans, and any edge cases of those.
     Supports CIDR bans, both IPv4 and IPv6, and the misfeature by which
     an invalid IP address is not parsed and zeroes are matched instead.
