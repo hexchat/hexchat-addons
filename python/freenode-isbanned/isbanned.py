@@ -1,6 +1,6 @@
 __module_name__ = "isbanned"
 __module_author__ = "mniip"
-__module_version__ = "0.7.1"
+__module_version__ = "0.8"
 __module_description__ = "freenode-specific module that checks whether someone is banned on some channel"
 
 """
@@ -51,8 +51,8 @@ def parse_ipv6_word(w):
     return int(m.group(0), 16)
 
 ipv4_regex = re.compile(r"^(\d+)\.(\d+)\.(\d+)\.(\d+)$")
-def parse_ip(ip, strict = False):
-    if ip.find(":") == -1:
+def parse_ip(ip, is_v4):
+    if is_v4:
         m = ipv4_regex.match(ip)
         if m:
             try:
@@ -64,10 +64,6 @@ def parse_ip(ip, strict = False):
                     return o1 << 24 | o2 << 16 | o3 << 8 | o4
             except ValueError:
                 pass
-        if strict:
-            raise ValueError("Invalid IPv4")
-        else:
-            return 0
     else:
         edge = False
         if ip[:2] == "::":
@@ -102,10 +98,6 @@ def parse_ip(ip, strict = False):
                     return ip
                 except ValueError:
                     pass
-        if strict:
-            raise ValueError("Invalid IPv6")
-        else:
-            return 0
 
 char_classes = {
         "[": r"[\[{]",
@@ -227,18 +219,20 @@ def analyze():
                 if not found:
                     try:
                         ip, width = bhost.rsplit("/", 1)
-                        width = int(re.match("-[0-9]*", width).group(0) or "0")
+                        width = int(re.match("-?[0-9]*", width).group(0)) % 2**32
                         if width > 0:
                             is_v4 = ip.find(":") == -1
-                            width = max((32 if is_v4 else 128) - width, 0)
-                            ip = parse_ip(ip)
+                            shift = max((32 if is_v4 else 128) - width, 0)
+                            ip = parse_ip(ip, is_v4)
                             for h in host:
                                 if (h.find(":") == -1) == is_v4:
-                                    try:
-                                        h = parse_ip(h, strict = True)
-                                    except ValueError:
+                                    if ip == None:
+                                        add_ban(b)
+                                        break
+                                    h = parse_ip(h, is_v4)
+                                    if h == None:
                                         continue
-                                    if ip >> width == h >> width:
+                                    if ip >> shift == h >> shift:
                                         add_ban(b)
                                         break
                     except ValueError:
